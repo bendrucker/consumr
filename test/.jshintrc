@@ -1,5 +1,6 @@
 {
   "node": true,
+  "es5": false,
   "globals": {
     "expect": false,
     "describe": false,

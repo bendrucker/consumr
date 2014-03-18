@@ -55,6 +55,21 @@ describe('Model', function () {
 
   });
 
+  describe('#reset', function () {
+
+    it('removes properties from the model', function () {
+      model.foo = 'bar';
+      model.reset();
+      expect(model).to.not.have.property('foo');
+    });
+
+    it('does not touch prototype methods', function () {
+      model.reset();
+      expect(model).to.respondTo('fetch');
+    });
+
+  });
+
   describe('#fetch', function () {
 
     beforeEach(function () {

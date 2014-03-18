@@ -23,6 +23,14 @@ Model.prototype.url = function () {
   return this.base + '/' + this.path + (this.isNew() ? '' : '/' + this.id);
 };
 
+Model.prototype.reset = function () {
+  Object.keys(this)
+    .forEach(function (key) {
+      this[key] = undefined;
+    }, this);
+  return this;
+};
+
 Model.prototype.fetch = Promise.method(function () {
   if (this.isNew()) throw new Error('Cannot fetch a new model');
   return needle

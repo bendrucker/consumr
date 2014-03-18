@@ -4,6 +4,7 @@
   "expr": true,
   "globals": {
     "expect": false,
+    "sinon": false,
     "describe": false,
     "it": false,
     "before": false,

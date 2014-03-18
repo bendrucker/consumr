@@ -1,11 +1,18 @@
 'use strict';
 
-var needle = require('needle');
-var url    = require('url');
-var extend = require('extend');
+var Promise = require('bluebird');
+var needle  = Promise.promisifyAll(require('needle'));
+var extend  = require('extend');
+
+var internals = {};
+
+internals.populate = function (attributes) {
+  extend(this, attributes);
+  return this;
+};
 
 var Model = function (attributes) {
-  extend(this, attributes);
+  internals.populate.call(this, attributes);
 };
 
 Model.prototype.isNew = function () {
@@ -13,7 +20,16 @@ Model.prototype.isNew = function () {
 };
 
 Model.prototype.url = function () {
-  return this.base + '/' + this.path + (this.isNew() ? '' : '/' + this.id); 
+  return this.base + '/' + this.path + (this.isNew() ? '' : '/' + this.id);
 };
+
+Model.prototype.fetch = Promise.method(function () {
+  if (this.isNew()) throw new Error('Cannot fetch a new model');
+  return needle
+    .getAsync(this.url())
+    .bind(this)
+    .get('body')
+    .then(internals.populate);
+});
 
 module.exports = Model;

@@ -1,6 +1,7 @@
 'use strict';
 
-var Model = require('../../src/model');
+var Model  = require('../../src/model');
+var needle = require('needle');
 
 describe('Model', function () {
 
@@ -50,6 +51,43 @@ describe('Model', function () {
     it('is the model endpoint for persisted models', function () {
       model.id = 0;
       expect(model.url()).to.equal('http://base/model/0');
+    });
+
+  });
+
+  describe('#fetch', function () {
+
+    beforeEach(function () {
+      model.id = 0;
+    });
+
+    beforeEach(function () {
+      sinon.stub(needle, 'getAsync').resolves({
+        body: {
+          foo: 'bar'
+        }
+      });
+    });
+
+    afterEach(function () {
+      needle.getAsync.restore();
+    });
+
+    it('cannot be fetched when isNew', function () {
+      model.id = undefined;
+      return expect(model.fetch()).to.be.rejectedWith(/Cannot fetch/);
+    });
+
+    it('GETs the model url', function  () {
+      return model.fetch().finally(function () {
+        expect(needle.getAsync).to.have.been.calledWith(model.url());
+      });
+    });
+
+    it('populates the model with the response body', function () {
+      return model.fetch().then(function (model) {
+        expect(model).to.have.property('foo', 'bar');
+      });
     });
 
   });

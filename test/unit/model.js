@@ -78,6 +78,7 @@ describe('Model', function () {
 
     beforeEach(function () {
       sinon.stub(needle, 'getAsync').resolves({
+        statusCode: 200,
         body: {
           foo: 'bar'
         }
@@ -115,6 +116,7 @@ describe('Model', function () {
 
     beforeEach(function () {
       sinon.stub(needle, 'requestAsync').resolves({
+        statusCode: 200,
         body: {
           id: 0,
           foo: 'bar'
@@ -148,6 +150,46 @@ describe('Model', function () {
     it('populates the model with the response body', function () {
       return model.save().finally(function () {
         expect(model).to.have.property('foo', 'bar');
+      });
+    });
+
+  });
+
+  describe('#destroy', function () {
+
+    beforeEach(function () {
+      model.id = 0;
+    });
+
+    beforeEach(function () {
+      sinon.stub(needle, 'deleteAsync').resolves({
+        statusCode: 200,
+        body: {
+          id: 0,
+          foo: 'bar'
+        }
+      });
+    });
+
+    afterEach(function () {
+      needle.deleteAsync.restore();
+    });
+
+    it('cannot be fetched when isNew', function () {
+      model.id = undefined;
+      return expect(model.destroy()).to.be.rejectedWith(/Cannot destroy/);
+    });
+
+    it('DELETEs the model url', function  () {
+      var url = model.url();
+      return model.destroy().finally(function () {
+        expect(needle.deleteAsync).to.have.been.calledWith(sinon.match(/\/0$/));
+      });
+    });
+
+    it('resets the model', function  () {
+      return model.destroy().finally(function () {
+        expect(model).to.not.have.property('id');
       });
     });
 

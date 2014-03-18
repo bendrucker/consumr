@@ -18,6 +18,14 @@ internals.save = function () {
   }];
 };
 
+internals.validate = function (response) {
+  return response;
+};
+
+internals.disallowNew = function (method) {
+  if (this.isNew()) throw new Error('Cannot ' + method + ' a new model');
+};
+
 var Model = function (attributes) {
   internals.populate.call(this, attributes);
 };
@@ -39,9 +47,10 @@ Model.prototype.reset = function () {
 };
 
 Model.prototype.fetch = Promise.method(function () {
-  if (this.isNew()) throw new Error('Cannot fetch a new model');
+  internals.disallowNew.call(this, 'fetch');
   return needle
     .getAsync(this.url())
+    .then(internals.validate)
     .bind(this)
     .get('body')
     .then(internals.populate);
@@ -52,8 +61,18 @@ Model.prototype.save = function () {
     .bind(this)
     .then(internals.save)
     .spread(needle.requestAsync)
+    .then(internals.validate)
     .get('body')
     .then(internals.populate);
 };
+
+Model.prototype.destroy = Promise.method(function () {
+  internals.disallowNew.call(this, 'destroy');
+  return needle
+    .deleteAsync(this.url())
+    .bind(this)
+    .then(internals.validate)
+    .then(this.reset);
+});
 
 module.exports = Model;

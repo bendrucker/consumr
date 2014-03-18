@@ -70,127 +70,123 @@ describe('Model', function () {
 
   });
 
-  describe('#fetch', function () {
+  describe('REST Methods', function () {
 
     beforeEach(function () {
       model.id = 0;
     });
 
-    beforeEach(function () {
-      sinon.stub(needle, 'getAsync').resolves({
-        statusCode: 200,
-        body: {
-          foo: 'bar'
-        }
+    describe('#fetch', function () {
+
+      beforeEach(function () {
+        sinon.stub(needle, 'getAsync').resolves({
+          statusCode: 200,
+          body: {
+            foo: 'bar'
+          }
+        });
       });
-    });
 
-    afterEach(function () {
-      needle.getAsync.restore();
-    });
-
-    it('cannot be fetched when isNew', function () {
-      model.id = undefined;
-      return expect(model.fetch()).to.be.rejectedWith(/Cannot fetch/);
-    });
-
-    it('GETs the model url', function  () {
-      return model.fetch().finally(function () {
-        expect(needle.getAsync).to.have.been.calledWith(model.url());
+      afterEach(function () {
+        needle.getAsync.restore();
       });
-    });
 
-    it('populates the model with the response body', function () {
-      return model.fetch().then(function (model) {
-        expect(model).to.have.property('foo', 'bar');
+      it('cannot be fetched when isNew', function () {
+        model.id = undefined;
+        return expect(model.fetch()).to.be.rejectedWith(/Cannot fetch/);
       });
-    });
 
-  });
-
-  describe('#save', function () {
-
-    beforeEach(function () {
-      model.id = 0;
-    });
-
-    beforeEach(function () {
-      sinon.stub(needle, 'requestAsync').resolves({
-        statusCode: 200,
-        body: {
-          id: 0,
-          foo: 'bar'
-        }
+      it('GETs the model url', function  () {
+        return model.fetch().finally(function () {
+          expect(needle.getAsync).to.have.been.calledWith(model.url());
+        });
       });
-    });
 
-    afterEach(function () {
-      needle.requestAsync.restore();
-    });
-
-    it('runs a POST when isNew', function () {
-      model.id = undefined;
-      return model.save().finally(function () {
-        expect(needle.requestAsync).to.have.been.calledWith('POST');
+      it('populates the model with the response body', function () {
+        return model.fetch().then(function (model) {
+          expect(model).to.have.property('foo', 'bar');
+        });
       });
+
     });
 
-    it('runs a PUT when !isNew', function () {
-      return model.save().finally(function () {
-        expect(needle.requestAsync).to.have.been.calledWith('PUT');
+    describe('#save', function () {
+
+      beforeEach(function () {
+        sinon.stub(needle, 'requestAsync').resolves({
+          statusCode: 200,
+          body: {
+            id: 0,
+            foo: 'bar'
+          }
+        });
       });
-    });
 
-    it('sends the model as JSON to the url', function () {
-      return model.save().finally(function () {
-        expect(needle.requestAsync).to.have.been.calledWith('PUT', model.url(), model, sinon.match.has('json', true));
+      afterEach(function () {
+        needle.requestAsync.restore();
       });
-    });
 
-    it('populates the model with the response body', function () {
-      return model.save().finally(function () {
-        expect(model).to.have.property('foo', 'bar');
+      it('runs a POST when isNew', function () {
+        model.id = undefined;
+        return model.save().finally(function () {
+          expect(needle.requestAsync).to.have.been.calledWith('POST');
+        });
       });
-    });
 
-  });
-
-  describe('#destroy', function () {
-
-    beforeEach(function () {
-      model.id = 0;
-    });
-
-    beforeEach(function () {
-      sinon.stub(needle, 'deleteAsync').resolves({
-        statusCode: 200,
-        body: {
-          id: 0,
-          foo: 'bar'
-        }
+      it('runs a PUT when !isNew', function () {
+        return model.save().finally(function () {
+          expect(needle.requestAsync).to.have.been.calledWith('PUT');
+        });
       });
-    });
 
-    afterEach(function () {
-      needle.deleteAsync.restore();
-    });
-
-    it('cannot be fetched when isNew', function () {
-      model.id = undefined;
-      return expect(model.destroy()).to.be.rejectedWith(/Cannot destroy/);
-    });
-
-    it('DELETEs the model url', function  () {
-      var url = model.url();
-      return model.destroy().finally(function () {
-        expect(needle.deleteAsync).to.have.been.calledWith(sinon.match(/\/0$/));
+      it('sends the model as JSON to the url', function () {
+        return model.save().finally(function () {
+          expect(needle.requestAsync).to.have.been.calledWith('PUT', model.url(), model, sinon.match.has('json', true));
+        });
       });
+
+      it('populates the model with the response body', function () {
+        return model.save().finally(function () {
+          expect(model).to.have.property('foo', 'bar');
+        });
+      });
+
     });
 
-    it('resets the model', function  () {
-      return model.destroy().finally(function () {
-        expect(model).to.not.have.property('id');
+    describe('#destroy', function () {
+
+      beforeEach(function () {
+        sinon.stub(needle, 'deleteAsync').resolves({
+          statusCode: 200,
+          body: {
+            id: 0,
+            foo: 'bar'
+          }
+        });
       });
+
+      afterEach(function () {
+        needle.deleteAsync.restore();
+      });
+
+      it('cannot be fetched when isNew', function () {
+        model.id = undefined;
+        return expect(model.destroy()).to.be.rejectedWith(/Cannot destroy/);
+      });
+
+      it('DELETEs the model url', function  () {
+        var url = model.url();
+        return model.destroy().finally(function () {
+          expect(needle.deleteAsync).to.have.been.calledWith(sinon.match(/\/0$/));
+        });
+      });
+
+      it('resets the model', function  () {
+        return model.destroy().finally(function () {
+          expect(model).to.not.have.property('id');
+        });
+      });
+
     });
 
   });

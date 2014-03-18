@@ -1,3 +1,5 @@
+'use strict';
+
 var gulp    = require('gulp');
 var plugins = require('gulp-load-plugins')();
 
@@ -16,6 +18,7 @@ gulp.task('lint', function () {
 });
 
 gulp.task('test', ['lint'], function (done) {
+  require('./test/setup');
   gulp.src(files.src)
     .pipe(plugins.istanbul())
     .on('end', function () {
@@ -24,4 +27,4 @@ gulp.task('test', ['lint'], function (done) {
         .pipe(plugins.istanbul.writeReports())
         .on('end', done);
     });
-})
+});

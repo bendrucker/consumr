@@ -106,5 +106,51 @@ describe('Model', function () {
     });
 
   });
+
+  describe('#save', function () {
+
+    beforeEach(function () {
+      model.id = 0;
+    });
+
+    beforeEach(function () {
+      sinon.stub(needle, 'requestAsync').resolves({
+        body: {
+          id: 0,
+          foo: 'bar'
+        }
+      });
+    });
+
+    afterEach(function () {
+      needle.requestAsync.restore();
+    });
+
+    it('runs a POST when isNew', function () {
+      model.id = undefined;
+      return model.save().finally(function () {
+        expect(needle.requestAsync).to.have.been.calledWith('POST');
+      });
+    });
+
+    it('runs a PUT when !isNew', function () {
+      return model.save().finally(function () {
+        expect(needle.requestAsync).to.have.been.calledWith('PUT');
+      });
+    });
+
+    it('sends the model as JSON to the url', function () {
+      return model.save().finally(function () {
+        expect(needle.requestAsync).to.have.been.calledWith('PUT', model.url(), model, sinon.match.has('json', true));
+      });
+    });
+
+    it('populates the model with the response body', function () {
+      return model.save().finally(function () {
+        expect(model).to.have.property('foo', 'bar');
+      });
+    });
+
+  });
   
 });

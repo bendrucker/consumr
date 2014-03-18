@@ -11,6 +11,13 @@ internals.populate = function (attributes) {
   return this;
 };
 
+internals.save = function () {
+  var method = this.isNew() ? 'POST' : 'PUT';
+  return [method, this.url(), this, {
+    json: true
+  }];
+};
+
 var Model = function (attributes) {
   internals.populate.call(this, attributes);
 };
@@ -39,5 +46,14 @@ Model.prototype.fetch = Promise.method(function () {
     .get('body')
     .then(internals.populate);
 });
+
+Model.prototype.save = function () {
+  return Promise
+    .bind(this)
+    .then(internals.save)
+    .spread(needle.requestAsync)
+    .get('body')
+    .then(internals.populate);
+};
 
 module.exports = Model;

@@ -17,6 +17,25 @@ describe('Model', function () {
 
   });
 
+  describe('#isNew', function () {
+
+    it('is not new if the model has an id', function () {
+      model.id = 0;
+      expect(model.isNew()).to.be.false;
+    });
+
+    it('is new if the id is undefined', function () {
+      model.id = undefined;
+      expect(model.isNew()).to.be.true;
+    });
+
+    it('is new if the id is null', function () {
+      model.id = null;
+      expect(model.isNew()).to.be.true;
+    });
+
+  });
+
   describe('#url', function () {
 
     beforeEach(function () {

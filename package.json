@@ -20,5 +20,18 @@
   "bugs": {
     "url": "https://github.com/valet-io/rest-model/issues"
   },
-  "homepage": "https://github.com/valet-io/rest-model"
+  "homepage": "https://github.com/valet-io/rest-model",
+  "dependencies": {
+    "node-extend": "~0.2.0",
+    "lodash.defaults": "~2.4.1",
+    "needle": "~0.6.6",
+    "bluebird": "~1.1.0"
+  },
+  "devDependencies": {
+    "jshint-stylish": "~0.1.5",
+    "gulp-jshint": "~1.5.0",
+    "gulp": "~3.5.6",
+    "gulp-mocha": "~0.4.1",
+    "gulp-istanbul": "~0.1.1"
+  }
 }

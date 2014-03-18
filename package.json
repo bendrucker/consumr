@@ -20,5 +20,9 @@
   "bugs": {
     "url": "https://github.com/valet-io/rest-model/issues"
   },
-  "homepage": "https://github.com/valet-io/rest-model"
+  "homepage": "https://github.com/valet-io/rest-model",
+  "dependencies": {
+    "node-extend": "~0.2.0",
+    "lodash.defaults": "~2.4.1",
+  }
 }

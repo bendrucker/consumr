@@ -7,6 +7,10 @@ var dot         = require('dot-component');
 
 var internals = {};
 
+internals.data = function (body) {
+  return this.dataProperty ? dot.get(body, this.dataProperty) : body;
+};
+
 internals.error = function (response) {
   return new exports.ResponseError(
     internals.error.message.call(this, response),
@@ -30,5 +34,5 @@ exports.ResponseError = createError('ResponseError');
 
 exports.parse = function (response) {
   internals.catch.call(this, response);
-  return response.body;
+  return internals.data.call(this, response.body);
 };

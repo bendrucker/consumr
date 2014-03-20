@@ -18,6 +18,20 @@ describe('Response', function () {
         expect(response.parse(res)).to.equal(res.body);
       });
 
+      it('can extract a deep property from the body', function () {
+        var res = {
+          statusCode: 200,
+          body: {
+            data: {
+              foo: 'bar'
+            }
+          }
+        };
+        expect(response.parse.call({
+          dataProperty: 'data'
+        }, res)).to.equal(res.body.data);
+      });
+
     });
 
 

@@ -22,7 +22,7 @@ internals.disallowNew = function (method) {
 };
 
 var Model = function (attributes) {
-  this.set.call(this, attributes);
+  this.set(attributes);
 };
 
 Model.prototype.isNew = function () {

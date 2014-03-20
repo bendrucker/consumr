@@ -55,6 +55,17 @@ describe('Model', function () {
 
   });
 
+  describe('#set', function () {
+
+    it('copies an object to the model', function () {
+      expect(model.set({
+        foo: 'bar'
+      }))
+      .to.have.property('foo', 'bar');
+    });
+
+  });
+
   describe('#reset', function () {
 
     it('removes properties from the model', function () {

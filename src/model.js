@@ -38,7 +38,7 @@ Model.prototype.set = function (attributes) {
 Model.prototype.reset = function () {
   Object.keys(this)
     .forEach(function (key) {
-      this[key] = undefined;
+      delete this[key];
     }, this);
   return this;
 };

@@ -4,13 +4,18 @@ var response = require('../../src/response');
 
 describe('Response', function () {
 
-  describe('#catch', function () {
+  describe('#parse', function () {
 
     describe('response.statusCode < 400', function () {
 
-      it('is a pass through', function () {
-        var res = {statusCode: 200};
-        expect(response.catch(res)).to.equal(res);
+      it('returns the response body', function () {
+        var res = {
+          statusCode: 200,
+          body: {
+            foo: 'bar'
+          }
+        };
+        expect(response.parse(res)).to.equal(res.body);
       });
 
     });
@@ -24,19 +29,19 @@ describe('Response', function () {
       });
 
       it('throws a ResponseError', function () {
-        expect(response.catch.bind(context, {
+        expect(response.parse.bind(context, {
           statusCode: 400
         })).to.throw(response.ResponseError);
       });
 
       it('appends the statusCode to the error', function () {
-        expect(response.catch.bind(context, {
+        expect(response.parse.bind(context, {
           statusCode: 400
         })).to.throw(sinon.match.has('statusCode', 400));
       });
 
       it('appends the body to the error', function () {
-        expect(response.catch.bind(context, {
+        expect(response.parse.bind(context, {
           statusCode: 400,
           body: {}
         })).to.throw(sinon.match.has('body'));
@@ -48,7 +53,7 @@ describe('Response', function () {
           context = {
             errorProperty: 'error'
           };
-          expect(response.catch.bind(context, {
+          expect(response.parse.bind(context, {
             statusCode: 400,
             body: {
               error: 'err'
@@ -60,7 +65,7 @@ describe('Response', function () {
           context = {
             errorProperty: 'error.message'
           };
-          expect(response.catch.bind(context, {
+          expect(response.parse.bind(context, {
             statusCode: 400,
             body: {
               error: {
@@ -73,7 +78,7 @@ describe('Response', function () {
       });
 
       it('falls back to a statusCode dictionary name', function () {
-        expect(response.catch.bind(context, {
+        expect(response.parse.bind(context, {
           statusCode: 500,
         })).to.throw('Internal Server Error');
       });

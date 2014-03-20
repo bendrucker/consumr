@@ -22,9 +22,13 @@ internals.error.properties = function (response) {
   return pick(response, 'body', 'statusCode');
 };
 
+internals.catch = function (response) {
+  if (response.statusCode > 399) throw internals.error.call(this, response);
+};
+
 exports.ResponseError = createError('ResponseError');
 
-exports.catch = function (response) {
-  if (response.statusCode > 399) throw internals.error.call(this, response);
-  return response;
+exports.parse = function (response) {
+  internals.catch.call(this, response);
+  return response.body;
 };

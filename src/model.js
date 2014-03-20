@@ -47,9 +47,8 @@ Model.prototype.fetch = Promise.method(function () {
   internals.disallowNew.call(this, 'fetch');
   return needle
     .getAsync(this.url())
-    .then(response.catch)
     .bind(this)
-    .get('body')
+    .then(response.parse)
     .then(this.set);
 });
 
@@ -58,8 +57,7 @@ Model.prototype.save = function () {
     .bind(this)
     .then(internals.save)
     .spread(needle.requestAsync)
-    .then(response.catch)
-    .get('body')
+    .then(response.parse)
     .then(this.set);
 };
 
@@ -68,7 +66,7 @@ Model.prototype.destroy = Promise.method(function () {
   return needle
     .deleteAsync(this.url())
     .bind(this)
-    .then(response.catch)
+    .then(response.parse)
     .then(this.reset);
 });
 

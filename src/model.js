@@ -1,8 +1,9 @@
 'use strict';
 
-var Promise = require('bluebird');
-var needle  = Promise.promisifyAll(require('needle'));
-var extend  = require('extend');
+var Promise  = require('bluebird');
+var needle   = Promise.promisifyAll(require('needle'));
+var extend   = require('extend');
+var response = require('./response');
 
 var internals = {};
 
@@ -11,10 +12,6 @@ internals.save = function () {
   return [method, this.url(), this, {
     json: true
   }];
-};
-
-internals.validate = function (response) {
-  return response;
 };
 
 internals.disallowNew = function (method) {
@@ -50,7 +47,7 @@ Model.prototype.fetch = Promise.method(function () {
   internals.disallowNew.call(this, 'fetch');
   return needle
     .getAsync(this.url())
-    .then(internals.validate)
+    .then(response.catch)
     .bind(this)
     .get('body')
     .then(this.set);
@@ -61,7 +58,7 @@ Model.prototype.save = function () {
     .bind(this)
     .then(internals.save)
     .spread(needle.requestAsync)
-    .then(internals.validate)
+    .then(response.catch)
     .get('body')
     .then(this.set);
 };
@@ -71,7 +68,7 @@ Model.prototype.destroy = Promise.method(function () {
   return needle
     .deleteAsync(this.url())
     .bind(this)
-    .then(internals.validate)
+    .then(response.catch)
     .then(this.reset);
 });
 

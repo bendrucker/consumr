@@ -3,6 +3,7 @@
 var pick        = require('lodash.pick');
 var httpStatus  = require('http-status');
 var createError = require('create-error');
+var dot         = require('dot-component');
 
 var internals = {};
 
@@ -14,7 +15,7 @@ internals.error = function (response) {
 };
 
 internals.error.message = function (response) {
-  return this.errorProperty ? response.body[this.errorProperty] : httpStatus[response.statusCode];
+  return this.errorProperty ? dot.get(response.body, this.errorProperty) : httpStatus[response.statusCode];
 };
 
 internals.error.properties = function (response) {

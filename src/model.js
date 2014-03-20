@@ -6,11 +6,6 @@ var extend  = require('extend');
 
 var internals = {};
 
-internals.populate = function (attributes) {
-  extend(this, attributes);
-  return this;
-};
-
 internals.save = function () {
   var method = this.isNew() ? 'POST' : 'PUT';
   return [method, this.url(), this, {
@@ -27,7 +22,7 @@ internals.disallowNew = function (method) {
 };
 
 var Model = function (attributes) {
-  internals.populate.call(this, attributes);
+  this.set.call(this, attributes);
 };
 
 Model.prototype.isNew = function () {
@@ -36,6 +31,11 @@ Model.prototype.isNew = function () {
 
 Model.prototype.url = function () {
   return this.base + '/' + this.path + (this.isNew() ? '' : '/' + this.id);
+};
+
+Model.prototype.set = function (attributes) {
+  extend(this, attributes);
+  return this;
 };
 
 Model.prototype.reset = function () {
@@ -53,7 +53,7 @@ Model.prototype.fetch = Promise.method(function () {
     .then(internals.validate)
     .bind(this)
     .get('body')
-    .then(internals.populate);
+    .then(this.set);
 });
 
 Model.prototype.save = function () {
@@ -63,7 +63,7 @@ Model.prototype.save = function () {
     .spread(needle.requestAsync)
     .then(internals.validate)
     .get('body')
-    .then(internals.populate);
+    .then(this.set);
 };
 
 Model.prototype.destroy = Promise.method(function () {

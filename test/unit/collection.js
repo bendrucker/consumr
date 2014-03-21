@@ -80,6 +80,18 @@ describe('Collection', function () {
       });
     });
 
+    it('uses the errorProperty and dataProperty from the model', function () {
+      Model.prototype.errorProperty = 'error';
+      Model.prototype.dataProperty = 'data';
+
+      return collection.fetch().finally(function () {
+        expect(send.getCall(0).thisValue.options).to.contain({
+          errorProperty: 'error',
+          dataProperty: 'data'
+        });
+      });
+    });
+
     it('updates existing models in the collection in place by ID', function () {
       var model = new Model({
         id: 1

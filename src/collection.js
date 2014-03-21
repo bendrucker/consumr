@@ -41,7 +41,10 @@ Collection.prototype.fetch = function () {
       return this.model.prototype.url() + internals.querystring.call(this);
     })
     .then(function (url) {
-      return new Request('GET', url).send();
+      return new Request('GET', url, null, {
+        errorProperty: this.model.prototype.errorProperty,
+        dataProperty: this.model.prototype.dataProperty
+      }).send();
     })
     .bind(this)
     .reduce(function (newModels, modelData) {

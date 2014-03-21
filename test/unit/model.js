@@ -1,7 +1,8 @@
 'use strict';
 
-var Model   = require('../../src/model');
-var Request = require('../../src/request');
+var Model      = require('../../src/model');
+var Request    = require('../../src/request');
+var Collection = require('../../src/collection');
 
 describe('Model', function () {
 
@@ -14,6 +15,15 @@ describe('Model', function () {
 
     it('sets up attributes', function () {
       expect(new Model({foo: 'bar'})).to.have.property('foo', 'bar');
+    });
+
+  });
+
+  describe('Model#collection', function () {
+
+    it('instantiates a new collection with the model', function () {
+      expect(Model.collection()).to.be.an.instanceOf(Collection)
+        .and.to.have.property('model', Model);
     });
 
   });

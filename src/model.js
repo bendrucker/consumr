@@ -1,8 +1,9 @@
 'use strict';
 
-var Promise  = require('bluebird');
-var extend   = require('extend');
-var Request  = require('./request');
+var Promise    = require('bluebird');
+var extend     = require('extend');
+var Request    = require('./request');
+var Collection = require('./collection');
 
 var internals = {};
 
@@ -16,6 +17,12 @@ internals.disallowNew = function (method) {
 
 var Model = function (attributes) {
   this.set(attributes);
+};
+
+Model.collection = function (attributes) {
+  var collection = new Collection(attributes);
+  collection.model = this;
+  return collection;
 };
 
 Model.prototype.isNew = function () {

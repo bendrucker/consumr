@@ -11,6 +11,14 @@ describe('Model', function () {
     model = new Model();
   });
 
+  it('is an EventEmitter', function () {
+    expect(model).to.respondTo('emit');
+  });
+
+  it('uses emitThen', function () {
+    expect(model).to.respondTo('emitThen');
+  });
+
   describe('Constructor', function () {
 
     it('sets up attributes', function () {

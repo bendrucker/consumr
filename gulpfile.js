@@ -15,10 +15,10 @@ var logIfWatch = function (err) {
 
 var files = {
   src: 'src/*.js',
-  test: 'test/**/*.js'
+  test: ['test/unit/*.js', 'test/integration/*.js']
 };
 
-files.all = [files.src, files.test];
+files.all = [files.src].concat(files.test);
 
 gulp.task('lint', function () {
   return gulp.src(files.all)

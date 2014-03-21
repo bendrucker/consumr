@@ -1,9 +1,11 @@
 'use strict';
 
-var Promise    = require('bluebird');
-var extend     = require('extend');
-var Request    = require('./request');
-var Collection = require('./collection');
+var EventEmitter = require('events').EventEmitter;
+var emitThen     = require('emit-then');
+var Promise      = require('bluebird');
+var extend       = require('extend');
+var Request      = require('./request');
+var Collection   = require('./collection');
 
 var internals = {};
 
@@ -15,8 +17,19 @@ internals.disallowNew = function (method) {
   if (this.isNew()) throw new Error('Cannot ' + method + ' a new model');
 };
 
+internals.eavesdrop = function (request) {
+  ['preRequest', 'postRequest', 'preResponse', 'postResponse']
+    .forEach(function (event) {
+      request.on(event, function () {
+        console.log(this);
+        return this.emitThen.call(this, event);
+      }.bind(this));
+    }, this);
+};
+
 var Model = function (attributes) {
   this.set(attributes);
+  EventEmitter.call(this);
 };
 
 Model.collection = function (attributes) {
@@ -24,6 +37,10 @@ Model.collection = function (attributes) {
   collection.model = this;
   return collection;
 };
+
+Model.prototype = Object.create(EventEmitter.prototype);
+
+Model.prototype.emitThen = emitThen;
 
 Model.prototype.isNew = function () {
   return (typeof this.id === 'undefined' || this.id === null);
@@ -48,9 +65,11 @@ Model.prototype.reset = function () {
 
 Model.prototype.fetch = Promise.method(function () {
   internals.disallowNew.call(this, 'fetch');
-  return new Request('GET', this.url())
-    .send()
+  return Promise
     .bind(this)
+    .return(new Request('GET', this.url()))
+    .tap(internals.eavesdrop)
+    .call('send')
     .then(this.set);
 });
 
@@ -59,16 +78,20 @@ Model.prototype.save = function () {
     .bind(this)
     .then(internals.save)
     .then(function (method) {
-      return new Request(method, this.url(), this).send();
+      return new Request(method, this.url(), this);
     })
+    .tap(internals.eavesdrop)
+    .call('send')
     .then(this.set);
 };
 
 Model.prototype.destroy = Promise.method(function () {
   internals.disallowNew.call(this, 'destroy');
-  return new Request('DELETE', this.url())
-    .send()
+  return Promise
     .bind(this)
+    .return(new Request('DELETE', this.url()))
+    .tap(internals.eavesdrop)
+    .call('send')
     .then(this.reset);
 });
 

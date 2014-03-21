@@ -58,7 +58,7 @@ describe('Response', function () {
 
       describe('errorProperty', function () {
 
-        it('uses extracts the error message based on model.errorProperty', function () {
+        it('uses extracts the error message based on errorProperty', function () {
           expect(response.parse.bind({
             statusCode: 400,
             body: {

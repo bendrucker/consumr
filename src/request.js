@@ -46,7 +46,9 @@ Request.prototype.send = Promise.method(function () {
       this.response = response;
       return this.emitThen('response', response);
     })
-    .then(response.parse);
+    .then(function () {
+      return response.parse.call(this.response, this.options);
+    });
 });
 
 module.exports = Request;

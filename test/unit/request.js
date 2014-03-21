@@ -91,7 +91,8 @@ describe('Request', function () {
       return request
         .send()
         .finally(function () {
-          expect(response.parse).to.have.been.calledWith(request.response);
+          expect(response.parse).to.have.been.calledWith(request.options);
+          expect(response.parse).to.have.been.calledOn(request.response);
           response.parse.restore();
         });
     });

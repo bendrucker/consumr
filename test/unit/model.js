@@ -1,7 +1,7 @@
 'use strict';
 
-var Model  = require('../../src/model');
-var needle = require('needle');
+var Model   = require('../../src/model');
+var Request = require('../../src/request');
 
 describe('Model', function () {
 
@@ -87,20 +87,18 @@ describe('Model', function () {
       model.id = 0;
     });
 
+    var send;
+    beforeEach(function () {
+      send = sinon.stub(Request.prototype, 'send').resolves({
+        foo: 'bar'
+      });
+    });
+
+    afterEach(function () {
+      send.restore();
+    });
+
     describe('#fetch', function () {
-
-      beforeEach(function () {
-        sinon.stub(needle, 'getAsync').resolves({
-          statusCode: 200,
-          body: {
-            foo: 'bar'
-          }
-        });
-      });
-
-      afterEach(function () {
-        needle.getAsync.restore();
-      });
 
       it('cannot be fetched when isNew', function () {
         model.id = undefined;
@@ -109,7 +107,7 @@ describe('Model', function () {
 
       it('GETs the model url', function  () {
         return model.fetch().finally(function () {
-          expect(needle.getAsync).to.have.been.calledWith(model.url());
+          expect(send).to.have.been.calledOn(sinon.match.has('url', model.url()));
         });
       });
 
@@ -123,36 +121,22 @@ describe('Model', function () {
 
     describe('#save', function () {
 
-      beforeEach(function () {
-        sinon.stub(needle, 'requestAsync').resolves({
-          statusCode: 200,
-          body: {
-            id: 0,
-            foo: 'bar'
-          }
-        });
-      });
-
-      afterEach(function () {
-        needle.requestAsync.restore();
-      });
-
       it('runs a POST when isNew', function () {
         model.id = undefined;
         return model.save().finally(function () {
-          expect(needle.requestAsync).to.have.been.calledWith('POST');
+          expect(send).to.have.been.calledOn(sinon.match.has('method', 'POST'));
         });
       });
 
       it('runs a PUT when !isNew', function () {
         return model.save().finally(function () {
-          expect(needle.requestAsync).to.have.been.calledWith('PUT');
+          expect(send).to.have.been.calledOn(sinon.match.has('method', 'PUT'));
         });
       });
 
-      it('sends the model as JSON to the url', function () {
+      it('sends the model as the request data', function () {
         return model.save().finally(function () {
-          expect(needle.requestAsync).to.have.been.calledWith('PUT', model.url(), model, sinon.match.has('json', true));
+          expect(send).to.have.been.calledOn(sinon.match.has('data', model));
         });
       });
 
@@ -166,21 +150,7 @@ describe('Model', function () {
 
     describe('#destroy', function () {
 
-      beforeEach(function () {
-        sinon.stub(needle, 'deleteAsync').resolves({
-          statusCode: 200,
-          body: {
-            id: 0,
-            foo: 'bar'
-          }
-        });
-      });
-
-      afterEach(function () {
-        needle.deleteAsync.restore();
-      });
-
-      it('cannot be fetched when isNew', function () {
+      it('cannot be destroyed when isNew', function () {
         model.id = undefined;
         return expect(model.destroy()).to.be.rejectedWith(/Cannot destroy/);
       });
@@ -188,7 +158,7 @@ describe('Model', function () {
       it('DELETEs the model url', function  () {
         var url = model.url();
         return model.destroy().finally(function () {
-          expect(needle.deleteAsync).to.have.been.calledWith(sinon.match(/\/0$/));
+          expect(send).to.have.been.calledOn(sinon.match.has('url', sinon.match(/\/0$/)));
         });
       });
 

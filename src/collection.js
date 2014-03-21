@@ -1,8 +1,7 @@
 'use strict';
 var querystring = require('querystring');
 var Promise     = require('bluebird');
-var needle      = Promise.promisifyAll(require('needle'));
-var response    = require('./response');
+var Request     = require('./request');
 
 var internals = {};
 
@@ -41,9 +40,9 @@ Collection.prototype.fetch = function () {
     .then(function () {
       return this.model.prototype.url() + internals.querystring.call(this);
     })
-    .then(needle.getAsync)
-    .bind(this.model.prototype)
-    .then(response.parse)
+    .then(function (url) {
+      return new Request('GET', url).send();
+    })
     .bind(this)
     .reduce(function (newModels, modelData) {
       var existing = internals.find.call(this, modelData);

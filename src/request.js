@@ -4,7 +4,7 @@ var EventEmitter = require('events').EventEmitter;
 var emitThen     = require('emit-then');
 var Promise      = require('bluebird');
 var pick         = require('lodash.pick');
-var defaults      = require('lodash.defaults');
+var defaults     = require('lodash.defaults');
 var needle       = Promise.promisifyAll(require('needle'));
 var response     = require('./response');
 

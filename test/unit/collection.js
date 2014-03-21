@@ -1,8 +1,8 @@
 'use strict';
 
 var Collection = require('../../src/collection');
+var Request    = require('../../src/request');
 var ModelBase  = require('../../src/model');
-var needle     = require('needle');
 
 describe('Collection', function () {
 
@@ -42,15 +42,13 @@ describe('Collection', function () {
 
   describe('#fetch', function () {
 
+    var send;
     beforeEach(function () {
-      sinon.stub(needle, 'getAsync').resolves({
-        statusCode: 200,
-        body: []
-      });
+      send = sinon.stub(Request.prototype, 'send').resolves([]);
     });
 
     afterEach(function () {
-      needle.getAsync.restore();
+      send.restore();
     });
 
     var Model;
@@ -67,7 +65,7 @@ describe('Collection', function () {
 
     it('fetches the base URL if no attributes are defined', function () {
       return collection.fetch().finally(function () {
-        expect(needle.getAsync).to.have.been.calledWith('http://url');
+        expect(send).to.have.been.calledOn(sinon.match.has('url', 'http://url'));
       });
     });
 
@@ -77,7 +75,8 @@ describe('Collection', function () {
         baz: 'qux'
       };
       return collection.fetch().finally(function () {
-        expect(needle.getAsync).to.have.been.calledWith('http://url?foo=bar&baz=qux');
+        expect(send).to.have.been.calledOn(sinon.match.has(
+          'url', 'http://url?foo=bar&baz=qux'));
       });
     });
 
@@ -86,13 +85,10 @@ describe('Collection', function () {
         id: 1
       });
       collection.push(model);
-      needle.getAsync.resolves({
-        statusCode: 200,
-        body: [{
-          id: 1,
-          foo: 'bar'
-        }]
-      });
+      send.resolves([{
+        id: 1,
+        foo: 'bar'
+      }]);
       return collection.fetch().finally(function () {
         expect(collection).to.have.length(1);
         expect(collection[0])
@@ -102,32 +98,14 @@ describe('Collection', function () {
     });
 
     it('adds new models to the collection', function () {
-      needle.getAsync.resolves({
-        statusCode: 200,
-        body: [{
-          id: 1,
-        }]
-      });
+      send.resolves([{
+        id: 1
+      }]);
       return collection.fetch().finally(function () {
         expect(collection).to.have.length(1);
         expect(collection[0])
           .to.be.an.instanceOf(Model)
           .and.to.have.property('id', 1);
-      });
-    });
-
-    it('uses the model dataProperty', function () {
-      Model.prototype.dataProperty = 'data';
-      needle.getAsync.resolves({
-        statusCode: 200,
-        body: {
-          data: [{
-            id: 1,
-          }]
-        }
-      });
-      return collection.fetch().finally(function () {
-        expect(collection).to.have.length(1);
       });
     });
 

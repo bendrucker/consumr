@@ -46,19 +46,18 @@ Collection.prototype.fetch = function () {
         dataProperty: this.model.prototype.dataProperty
       }).send();
     })
-    .bind(this)
-    .reduce(function (newModels, modelData) {
-      var existing = internals.find.call(this, modelData);
-      if (existing) {
-        existing.set(modelData);
-      } else {
-        newModels.push(modelData);
-      }
-      return newModels;
-    }, [])
     .bind(this.model)
     .map(internals.cast)
     .bind(this)
+    .reduce(function (newModels, model) {
+      var existing = internals.find.call(this, model);
+      if (existing) {
+        existing.set(model);
+      } else {
+        newModels.push(model);
+      }
+      return newModels;
+    }, [])
     .then(function (models) {
       this.push.apply(this, models);
     });

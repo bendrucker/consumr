@@ -7,32 +7,33 @@ var dot         = require('dot-component');
 
 var internals = {};
 
-internals.data = function (body) {
-  return this.dataProperty ? dot.get(body, this.dataProperty) : body;
+internals.data = function (options) {
+  return options.dataProperty ? dot.get(this.body, options.dataProperty) : this.body;
 };
 
-internals.error = function (response) {
+internals.error = function (options) {
   return new exports.ResponseError(
-    internals.error.message.call(this, response),
-    internals.error.properties.call(this, response)
+    internals.error.message.call(this, options),
+    internals.error.properties.call(this)
   );
 };
 
-internals.error.message = function (response) {
-  return this.errorProperty ? dot.get(response.body, this.errorProperty) : httpStatus[response.statusCode];
+internals.error.message = function (options) {
+  return options.errorProperty ? dot.get(this.body, options.errorProperty) : httpStatus[this.statusCode];
 };
 
 internals.error.properties = function (response) {
   return pick(response, 'body', 'statusCode');
 };
 
-internals.catch = function (response) {
-  if (response.statusCode > 399) throw internals.error.call(this, response);
+internals.catch = function (options) {
+  if (this.statusCode > 399) throw internals.error.call(this, options);
 };
 
 exports.ResponseError = createError('ResponseError');
 
-exports.parse = function (response) {
-  internals.catch.call(this, response);
-  return internals.data.call(this, response.body);
+exports.parse = function (options) {
+  options = options || {};
+  internals.catch.call(this, options);
+  return internals.data.call(this, options);
 };

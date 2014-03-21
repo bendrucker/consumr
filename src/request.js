@@ -39,15 +39,24 @@ Request.prototype.emitThen = emitThen;
 
 Request.prototype.send = Promise.method(function () {
   return this
-    .emitThen('request', this, this.options)
+    .emitThen('preRequest', this)
     .bind(this)
-    .then(internals.needle)
+    .then(function () {
+      var request = internals.needle.call(this);
+      try {
+        this.emit('postRequest', this);
+      } catch (e) {}
+      return request;
+    })
     .tap(function (response) {
       this.response = response;
-      return this.emitThen('response', response);
+      return this.emitThen('preResponse', response);
     })
     .then(function () {
       return response.parse.call(this.response, this.options);
+    })
+    .tap(function (body) {
+      return this.emitThen('postResponse', body);
     });
 });
 

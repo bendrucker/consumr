@@ -49,18 +49,22 @@ describe('Request', function () {
         body: {}
       };
       sinon.stub(needle, 'requestAsync').resolves(res);
+      sinon.stub(response, 'parse').returns(res.body);
     });
 
     afterEach(function () {
       needle.requestAsync.restore();
+      response.parse.restore();
     });
 
-    it('emits a request event with the request and options', function () {
+    it('emits a preRequest event before calling needle', function () {
       return request
-        .on('request', spy)
+        .on('preRequest', spy)
         .send()
         .finally(function () {
-          expect(spy).to.have.been.calledWith(request, request.options);
+          expect(spy)
+            .to.have.been.calledWith(request)
+            .and.to.have.been.calledBefore(needle.requestAsync);
         });
     });
 
@@ -77,23 +81,46 @@ describe('Request', function () {
       });
     });
 
-    it('emits a response event with the needle response', function () {
+    it('emits a safe postRequest event after calling needle', function () {
+      var stub = sinon.stub().throws();
       return request
-        .on('response', spy)
+        .on('postRequest', stub)
         .send()
         .finally(function () {
-          expect(spy).to.have.been.calledWith(res);
+          expect(stub)
+            .to.have.been.calledWith(request)
+            .and.to.have.been.calledAfter(needle.requestAsync);
+        });
+    });
+
+    it('emits a preResponse event with the needle response', function () {
+      return request
+        .on('preResponse', spy)
+        .send()
+        .finally(function () {
+          expect(spy)
+            .to.have.been.calledWith(res)
+            .and.to.have.been.calledBefore(response.parse);
         });
     });
 
     it('parses the response', function () {
-      sinon.stub(response, 'parse');
       return request
         .send()
         .finally(function () {
           expect(response.parse).to.have.been.calledWith(request.options);
           expect(response.parse).to.have.been.calledOn(request.response);
-          response.parse.restore();
+        });
+    });
+
+    it('emits a postResponse event with the parsed body', function () {
+      return request
+        .on('postResponse', spy)
+        .send()
+        .finally(function () {
+          expect(spy)
+            .to.have.been.calledWith(res.body)
+            .and.to.have.been.calledAfter(response.parse);
         });
     });
 

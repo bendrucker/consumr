@@ -15,24 +15,24 @@ describe('Request', function () {
   describe('Constructor', function () {
 
     it('accepts the method, URL, data, and options', function () {
-      expect(new Request('m', 'u', 'd', 'o'))
+      expect(new Request('method', 'url', 'data', 'options'))
         .to.contain({
-          method: 'm',
-          url: 'u',
-          data: 'd',
-          options: 'o'
+          method: 'method',
+          url: 'url',
+          data: 'data',
+          options: 'options'
         });
     });
 
-    it('can be instantiated without options', function () {
-      expect(new Request()).to.have.property('options').that.is.empty;
+    it('defaults to json: true for options', function () {
+      expect(new Request().options).to.contain({json: true});
     });
 
   });
 
   var request;
   beforeEach(function () {
-    request = new Request();
+    request = new Request('method', 'url', 'data');
   });
 
   var spy;
@@ -42,11 +42,17 @@ describe('Request', function () {
 
   describe('#send', function () {
 
+    var res;
     beforeEach(function () {
-      sinon.stub(needle, 'requestAsync').resolves({
+      res = {
         statusCode: 200,
         body: {}
-      });
+      };
+      sinon.stub(needle, 'requestAsync').resolves(res);
+    });
+
+    afterEach(function () {
+      needle.requestAsync.restore();
     });
 
     it('emits a request event with the request and options', function () {
@@ -55,6 +61,38 @@ describe('Request', function () {
         .send()
         .finally(function () {
           expect(spy).to.have.been.calledWith(request, request.options);
+        });
+    });
+
+    it('calls needle.requestAsync', function () {
+      return request.send().finally(function () {
+        expect(needle.requestAsync).to.have.been.calledWith('method', 'url', 'data');
+      });
+    });
+
+    it('excludes unneeded options from needle', function () {
+      request.options.foo = 'bar';
+      return request.send().finally(function () {
+        expect(needle.requestAsync.firstCall.args[3]).to.not.contain.keys('foo');
+      });
+    });
+
+    it('emits a response event with the needle response', function () {
+      return request
+        .on('response', spy)
+        .send()
+        .finally(function () {
+          expect(spy).to.have.been.calledWith(res);
+        });
+    });
+
+    it('parses the response', function () {
+      sinon.stub(response, 'parse');
+      return request
+        .send()
+        .finally(function () {
+          expect(response.parse).to.have.been.calledWith(request.response);
+          response.parse.restore();
         });
     });
 

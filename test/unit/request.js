@@ -48,7 +48,7 @@ describe('Request', function () {
         statusCode: 200,
         body: {}
       };
-      sinon.stub(needle, 'requestAsync').resolves(res);
+      sinon.stub(needle, 'requestAsync').resolves([res]);
       sinon.stub(response, 'parse').returns(res.body);
     });
 

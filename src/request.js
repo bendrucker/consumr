@@ -48,6 +48,7 @@ Request.prototype.send = Promise.method(function () {
       } catch (e) {}
       return request;
     })
+    .get('0')
     .tap(function (response) {
       this.response = response;
       return this.emitThen('preResponse', response);

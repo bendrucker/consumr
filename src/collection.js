@@ -1,7 +1,7 @@
 'use strict';
 var querystring = require('querystring');
 var Promise     = require('bluebird');
-var Request     = require('./request');
+var Request     = require('request2');
 
 var internals = {};
 

@@ -43,7 +43,6 @@ describe('Integration', function () {
         user.on(event, spy);
       });
       return user[action].call(user).finally(function () {
-        console.log(spy);
         expect(spy.callCount).to.equal(requestEvents.length);
       });
     };

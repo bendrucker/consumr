@@ -4,7 +4,7 @@ var EventEmitter = require('events').EventEmitter;
 var emitThen     = require('emit-then');
 var Promise      = require('bluebird');
 var extend       = require('extend');
-var Request      = require('./request');
+var Request      = require('request2');
 var Collection   = require('./collection');
 
 var internals = {};
@@ -21,7 +21,6 @@ internals.eavesdrop = function (request) {
   ['preRequest', 'postRequest', 'preResponse', 'postResponse']
     .forEach(function (event) {
       request.on(event, function () {
-        console.log(this);
         return this.emitThen.call(this, event);
       }.bind(this));
     }, this);

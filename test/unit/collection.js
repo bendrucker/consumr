@@ -1,7 +1,7 @@
 'use strict';
 
+var Request    = require('request2');
 var Collection = require('../../src/collection');
-var Request    = require('../../src/request');
 var ModelBase  = require('../../src/model');
 
 describe('Collection', function () {

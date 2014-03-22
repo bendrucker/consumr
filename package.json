@@ -26,7 +26,8 @@
     "extend": "~1.2.1",
     "lodash.pick": "~2.4.1",
     "emit-then": "0.0.3",
-    "request2": "0.0.2"
+    "request2": "0.0.2",
+    "eavesdrop": "~0.1.0"
   },
   "devDependencies": {
     "jshint-stylish": "~0.1.5",

@@ -2,6 +2,7 @@
 
 var EventEmitter = require('events').EventEmitter;
 var emitThen     = require('emit-then');
+var eavesdrop    = require('eavesdrop');
 var Promise      = require('bluebird');
 var extend       = require('extend');
 var Request      = require('request2');
@@ -18,12 +19,12 @@ internals.disallowNew = function (method) {
 };
 
 internals.eavesdrop = function (request) {
-  ['preRequest', 'postRequest', 'preResponse', 'postResponse']
-    .forEach(function (event) {
-      request.on(event, function () {
-        return this.emitThen.call(this, event);
-      }.bind(this));
-    }, this);
+  eavesdrop.call(this, request, [
+    'preRequest',
+    'postRequest',
+    'preResponse',
+    'postResponse'
+  ]);
 };
 
 var Model = function (attributes) {

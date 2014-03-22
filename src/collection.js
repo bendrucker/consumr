@@ -1,12 +1,23 @@
 'use strict';
+
 var querystring = require('querystring');
 var Promise     = require('bluebird');
 var Request     = require('request2');
+var eavesdrop   = require('eavesdrop');
 
 var internals = {};
 
 internals.querystring = function () {
   return Object.keys(this.attributes).length? '?' + querystring.stringify(this.attributes) : '';
+};
+
+internals.eavesdrop = function (request) {
+  eavesdrop.call(this, request, [
+    'preRequest',
+    'postRequest',
+    'preResponse',
+    'postResponse'
+  ]);
 };
 
 internals.cast = function (attributes) {
@@ -46,6 +57,7 @@ Collection.prototype.fetch = function () {
         dataProperty: this.model.prototype.dataProperty
       }).send();
     })
+    .tap(internals.eavesdrop)
     .bind(this.model)
     .map(internals.cast)
     .bind(this)

@@ -83,6 +83,54 @@ describe('Integration', function () {
 
     });
 
+    describe('#save', function () {
+
+      it('triggers a POST for new models', function () {
+        api
+          .post('/users')
+          .reply(201, {
+            id: 1
+          });
+        user.id = null;
+        return user
+          .on('preRequest', function (request) {
+            expect(request.method).to.equal('POST');
+          })
+          .save()
+          .then(function (user) {
+            expect(user).to.have.property('id', 1);
+          });
+      });
+
+      it('triggers a PUT for new models', function () {
+        api
+          .put('/users/0')
+          .reply(200, {
+            id: 0,
+            name: 'Ben'
+          });
+        return user
+          .on('preRequest', function (request) {
+            expect(request.method).to.equal('PUT');
+          })
+          .save()
+          .then(function (user) {
+            expect(user).to.have.property('name', 'Ben');
+          });
+      });
+
+      it('triggers lifecycle events', function () {
+        api
+          .put('/users/0')
+          .reply(200, {
+            id: 0,
+            name: 'Ben'
+          });
+        return verifyRequestEvents(user, 'save');
+      });
+
+    });
+
   });
 
 });

@@ -154,8 +154,16 @@ describe('Model', function () {
 
       it('sends the model as the request data', function () {
         return model.save().finally(function () {
-          expect(send).to.have.been.calledOn(sinon.match.has('data', model));
+          expect(send).to.have.been.calledOn(sinon.match.has('data', sinon.match.has('id')));
         });
+      });
+
+      it('strips internal properties before sending', function () {
+        return model
+          .on('preRequest', function (request) {
+            expect(request.data).to.not.have.property('_events');
+          })
+          .save();
       });
 
       it('populates the model with the response body', function () {

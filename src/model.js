@@ -70,7 +70,7 @@ Model.prototype.save = function () {
     .bind(this)
     .then(internals.save)
     .then(function (method) {
-      return new Request(method, this.url(), this);
+      return new Request(method, this.url(), utils.scrub(this));
     })
     .tap(utils.eavesdrop)
     .call('send')

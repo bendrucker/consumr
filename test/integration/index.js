@@ -19,8 +19,12 @@ describe('Integration', function () {
   });
 
   var api;
-  before(function () {
+  beforeEach(function () {
     api = nock('http://testendpoint.api');
+  });
+
+  afterEach(function () {
+    api.done();
   });
 
   after(function () {
@@ -48,16 +52,17 @@ describe('Integration', function () {
 
     describe('#fetch', function () {
 
-      beforeEach(function () {
+      var mockFetch = function () {
         api
           .get('/users/0')
           .reply(200, {
             id: 0,
             name: 'Ben'
           });
-      });
+      };
 
       it('fetches the model data from the server', function () {
+        mockFetch();
         return user
           .fetch()
           .bind(user)
@@ -68,6 +73,7 @@ describe('Integration', function () {
       });
 
       it('triggers lifecycle events', function () {
+        mockFetch();
         return verifyRequestEvents(user, 'fetch');
       });
 

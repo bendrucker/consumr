@@ -131,6 +131,31 @@ describe('Integration', function () {
 
     });
 
+    describe('#destroy', function () {
+
+      beforeEach(function () {
+        api
+          .delete('/users/0')
+          .reply(200, '');
+        });
+
+      it('triggers a DELETE', function () {
+        return user
+          .on('preRequest', function (request) {
+            expect(request.method).to.equal('DELETE');
+          })
+          .destroy()
+          .then(function (user) {
+            expect(user).to.not.have.property('id');
+          });
+      });
+
+      it('triggers lifecycle events', function () {
+        return verifyRequestEvents(user, 'destroy');
+      });
+
+    });
+
   });
 
 });

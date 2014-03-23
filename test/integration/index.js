@@ -19,11 +19,11 @@ describe('Integration', function () {
   });
 
   var api;
-  beforeEach(function () {
-    api = nock(User.prototype.base);
+  before(function () {
+    api = nock('http://testendpoint.api');
   });
 
-  afterEach(function () {
+  after(function () {
     nock.cleanAll();
     nock.restore();
   });
@@ -37,12 +37,12 @@ describe('Integration', function () {
 
     var requestEvents = ['preRequest', 'postRequest', 'preResponse', 'postResponse'];
 
-    var verifyRequestEvents = function (user, action) {
+    var verifyRequestEvents = function (action) {
       var spy = sinon.spy();
       requestEvents.forEach(function (event) {
         user.on(event, spy);
       });
-      return user[action].call(user).finally(function () {
+      return user[action].call(user).then(function () {
         expect(spy.callCount).to.equal(requestEvents.length);
       });
     };
@@ -69,7 +69,7 @@ describe('Integration', function () {
       });
 
       it('triggers lifecycle events', function () {
-        // return verifyRequestEvents(user, 'fetch');
+        return verifyRequestEvents('fetch');
       });
 
     });

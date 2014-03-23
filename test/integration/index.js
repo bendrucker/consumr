@@ -72,9 +72,18 @@ describe('Integration', function () {
         return verifyRequestEvents('fetch');
       });
 
+      it('can halt the request during a lifecycle event', function () {
+        var err = new Error('stop');
+        return expect(user
+          .on('preRequest', function () {
+            throw err;
+          })
+          .fetch())
+          .to.be.rejectedWith(err);
+      });
+
     });
 
   });
 
 });
-

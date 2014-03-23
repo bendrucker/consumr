@@ -11,6 +11,14 @@ describe('Collection', function () {
     collection = new Collection();
   });
 
+  it('is an EventEmitter', function () {
+    expect(collection).to.respondTo('emit');
+  });
+
+  it('uses emitThen', function () {
+    expect(collection).to.respondTo('emitThen');
+  });
+
   describe('Constructor', function () {
 
     it('inherits from Array', function () {

@@ -7,6 +7,7 @@ var Promise      = require('bluebird');
 var extend       = require('extend');
 var Request      = require('request2');
 var Collection   = require('./collection');
+var utils        = require('./utils');
 
 var internals = {};
 
@@ -16,15 +17,6 @@ internals.save = function () {
 
 internals.disallowNew = function (method) {
   if (this.isNew()) throw new Error('Cannot ' + method + ' a new model');
-};
-
-internals.eavesdrop = function (request) {
-  eavesdrop.call(this, request, [
-    'preRequest',
-    'postRequest',
-    'preResponse',
-    'postResponse'
-  ]);
 };
 
 var Model = function (attributes) {
@@ -68,7 +60,7 @@ Model.prototype.fetch = Promise.method(function () {
   return Promise
     .bind(this)
     .return(new Request('GET', this.url()))
-    .tap(internals.eavesdrop)
+    .tap(utils.eavesdrop)
     .call('send')
     .then(this.set);
 });
@@ -80,7 +72,7 @@ Model.prototype.save = function () {
     .then(function (method) {
       return new Request(method, this.url(), this);
     })
-    .tap(internals.eavesdrop)
+    .tap(utils.eavesdrop)
     .call('send')
     .then(this.set);
 };
@@ -90,7 +82,7 @@ Model.prototype.destroy = Promise.method(function () {
   return Promise
     .bind(this)
     .return(new Request('DELETE', this.url()))
-    .tap(internals.eavesdrop)
+    .tap(utils.eavesdrop)
     .call('send')
     .then(this.reset);
 });

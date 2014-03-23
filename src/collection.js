@@ -1,23 +1,18 @@
 'use strict';
 
-var querystring = require('querystring');
-var Promise     = require('bluebird');
-var Request     = require('request2');
-var eavesdrop   = require('eavesdrop');
+var querystring  = require('querystring');
+var Promise      = require('bluebird');
+var Request      = require('request2');
+var eavesdrop    = require('eavesdrop');
+var extend       = require('extend');
+var EventEmitter = require('events').EventEmitter;
+var emitThen     = require('emit-then');
+var utils        = require('./utils');
 
 var internals = {};
 
 internals.querystring = function () {
   return Object.keys(this.attributes).length? '?' + querystring.stringify(this.attributes) : '';
-};
-
-internals.eavesdrop = function (request) {
-  eavesdrop.call(this, request, [
-    'preRequest',
-    'postRequest',
-    'preResponse',
-    'postResponse'
-  ]);
 };
 
 internals.cast = function (attributes) {
@@ -32,10 +27,15 @@ internals.find = function (model) {
 
 var Collection = function (attributes) {
   Array.call(this);
+  EventEmitter.call(this);
   this.attributes = attributes || {};
 };
 
 Collection.prototype = Object.create(Array.prototype);
+
+extend(Collection.prototype, EventEmitter.prototype);
+
+Collection.prototype.emitThen = emitThen;
 
 Collection.prototype.reset = function () {
   while (this.length > 0) {
@@ -55,9 +55,10 @@ Collection.prototype.fetch = function () {
       return new Request('GET', url, null, {
         errorProperty: this.model.prototype.errorProperty,
         dataProperty: this.model.prototype.dataProperty
-      }).send();
+      });
     })
-    .tap(internals.eavesdrop)
+    .tap(utils.eavesdrop)
+    .call('send')
     .bind(this.model)
     .map(internals.cast)
     .bind(this)

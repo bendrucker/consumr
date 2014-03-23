@@ -28,24 +28,23 @@ describe('Integration', function () {
     nock.restore();
   });
 
+  var requestEvents = ['preRequest', 'postRequest', 'preResponse', 'postResponse'];
+  var verifyRequestEvents = function (target, action) {
+    var spy = sinon.spy();
+    requestEvents.forEach(function (event) {
+      target.on(event, spy);
+    });
+    return target[action]().then(function () {
+      expect(spy.callCount).to.equal(requestEvents.length);
+    });
+  };
+
   describe('Model', function () {
 
     var user;
     beforeEach(function () {
       user = new User({id: 0});
     });
-
-    var requestEvents = ['preRequest', 'postRequest', 'preResponse', 'postResponse'];
-
-    var verifyRequestEvents = function (action) {
-      var spy = sinon.spy();
-      requestEvents.forEach(function (event) {
-        user.on(event, spy);
-      });
-      return user[action].call(user).then(function () {
-        expect(spy.callCount).to.equal(requestEvents.length);
-      });
-    };
 
     describe('#fetch', function () {
 
@@ -69,7 +68,7 @@ describe('Integration', function () {
       });
 
       it('triggers lifecycle events', function () {
-        return verifyRequestEvents('fetch');
+        return verifyRequestEvents(user, 'fetch');
       });
 
       it('can halt the request during a lifecycle event', function () {

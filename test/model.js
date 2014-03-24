@@ -68,6 +68,11 @@ describe('Model', function () {
       expect(model).to.respondTo('emit');
     });
 
+    it('does not touch private properties', function () {
+      model.reset();
+      expect(model).to.have.property('_events');
+    });
+
   });
   
 });

@@ -1,7 +1,8 @@
 'use strict';
 
-var Collection = require('../src/collection');
-var Model      = require('../src/model');
+var consumr    = require('../');
+var Model      = consumr.Model;
+var Collection = consumr.Collection;
 
 describe('Collection', function () {
 

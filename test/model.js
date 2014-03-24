@@ -1,6 +1,6 @@
 'use strict';
 
-var Model      = require('../src/model');
+var Model = require('../').Model;
 
 describe('Model', function () {
 

@@ -1,14 +1,14 @@
 {
-  "name": "rest-model",
+  "name": "consumr",
   "version": "0.0.0",
-  "description": "Portable interface for REST models",
+  "description": "Create object oriented Javscript API wrappers",
   "main": "src/index.js",
   "scripts": {
     "test": "gulp test"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/valet-io/rest-model"
+    "url": "https://github.com/valet-io/consumr"
   },
   "keywords": [
     "REST",
@@ -18,9 +18,9 @@
   "author": "Ben Drucker <bvdrucker@gmail.com> (http://www.bendrucker.me)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/valet-io/rest-model/issues"
+    "url": "https://github.com/valet-io/consumr/issues"
   },
-  "homepage": "https://github.com/valet-io/rest-model",
+  "homepage": "https://github.com/valet-io/consumr",
   "dependencies": {
     "bluebird": "~1.1.0",
     "extend": "~1.2.1",

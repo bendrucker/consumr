@@ -48,6 +48,67 @@ describe('Collection', function () {
 
   });
 
+  describe('#merge', function () {
+
+    var model;
+    beforeEach(function () {
+      model = new ModelBase({
+        id: 1
+      });
+    });
+
+    beforeEach(function () {
+      collection.model = ModelBase;
+    });
+
+    it('updates existing models in the collection in place by ID', function () {
+      collection.push(model);
+      collection.merge({id: 1, name: 'Ben'});
+      expect(collection)
+        .to.have.length(1)
+        .and.have.deep.property('[0].name', 'Ben');
+    });
+
+    it('adds new models to the collection', function () {
+      collection.merge({id: 1, name: 'Ben'});
+      expect(collection)
+        .to.have.length(1)
+        .and.have.property('0')
+        .and.contain({
+          id: 1,
+          name: 'Ben'
+        })
+        .and.is.an.instanceOf(ModelBase);
+    });
+
+    it('can merge many models', function () {
+      collection.merge([
+        {id: 1, name: 'Ben'},
+        {id: 2, name: 'Drucker'}
+      ]);
+      expect(collection)
+        .to.have.length(2);
+    });
+
+    it('can merge many models', function () {
+      collection.merge([
+        {id: 1, name: 'Ben'},
+        {id: 2, name: 'Drucker'}
+      ]);
+      expect(collection)
+        .to.have.length(2);
+    });
+
+    it('merges existing models with model.toJSON (shallow:true)', function () {
+      collection.push(model);
+      sinon.stub(model, 'toJSON');
+      collection.merge(model);
+      expect(model.toJSON).to.have.been.calledWithMatch({shallow: true});
+    });
+
+  });
+
+
   describe('#fetch', function () {
 
     var send;
@@ -97,35 +158,6 @@ describe('Collection', function () {
           errorProperty: 'error',
           dataProperty: 'data'
         });
-      });
-    });
-
-    it('updates existing models in the collection in place by ID', function () {
-      var model = new Model({
-        id: 1
-      });
-      collection.push(model);
-      send.resolves([{
-        id: 1,
-        foo: 'bar'
-      }]);
-      return collection.fetch().finally(function () {
-        expect(collection).to.have.length(1);
-        expect(collection[0])
-          .to.equal(model)
-          .and.to.have.property('foo', 'bar');
-      });
-    });
-
-    it('adds new models to the collection', function () {
-      send.resolves([{
-        id: 1
-      }]);
-      return collection.fetch().finally(function () {
-        expect(collection).to.have.length(1);
-        expect(collection[0])
-          .to.be.an.instanceOf(Model)
-          .and.to.have.property('id', 1);
       });
     });
 

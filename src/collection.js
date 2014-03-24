@@ -3,7 +3,6 @@
 var querystring  = require('querystring');
 var Promise      = require('bluebird');
 var Request      = require('request2');
-var eavesdrop    = require('eavesdrop');
 var extend       = require('extend');
 var EventEmitter = require('events').EventEmitter;
 var emitThen     = require('emit-then');
@@ -23,6 +22,11 @@ internals.find = function (model) {
   return this.filter(function (model) {
     return model.id === this.id;
   }, model)[0];
+};
+
+internals.update = function (model) {
+  var target = internals.find.call(this, model);
+  if (target) return target.set(model.toJSON({shallow: true}));
 };
 
 var Collection = function (attributes) {
@@ -45,6 +49,20 @@ Collection.prototype.reset = function () {
   return this;
 };
 
+Collection.prototype.merge = function (models) {
+  if (!Array.isArray(models)) models = [models];
+  models
+    .map(internals.cast, this.model)
+    .filter(function (model) {
+      return !internals.update.call(this, model);
+    }, this)
+    .forEach(function (model) {
+      this.push(model);
+    }, this);
+
+  return this;
+};
+
 Collection.prototype.fetch = function () {
   return Promise
     .bind(this)
@@ -59,21 +77,7 @@ Collection.prototype.fetch = function () {
     })
     .tap(utils.eavesdrop)
     .call('send')
-    .bind(this.model)
-    .map(internals.cast)
-    .bind(this)
-    .reduce(function (newModels, model) {
-      var existing = internals.find.call(this, model);
-      if (existing) {
-        existing.set(model);
-      } else {
-        newModels.push(model);
-      }
-      return newModels;
-    }, [])
-    .then(function (models) {
-      this.push.apply(this, models);
-    });
+    .then(this.merge);
 };
 
 module.exports = Collection;

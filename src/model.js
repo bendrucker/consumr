@@ -55,6 +55,10 @@ Model.prototype.reset = function () {
   return this;
 };
 
+Model.prototype.toJSON = function () {
+  return this;
+};
+
 Model.prototype.fetch = Promise.method(function () {
   internals.disallowNew.call(this, 'fetch');
   return Promise

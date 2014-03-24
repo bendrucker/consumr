@@ -1,4 +1,4 @@
-rest-model
+consumr [![Build Status](https://travis-ci.org/valet-io/consumr.svg)](https://travis-ci.org/valet-io/consumr)
 ==========
 
-Portable interface for REST models
+Create portable, object-oriented interfaces for remote APIs

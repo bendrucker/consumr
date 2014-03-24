@@ -1,7 +1,7 @@
 'use strict';
 
 var Collection = require('../src/collection');
-var ModelBase  = require('../src/model');
+var Model      = require('../src/model');
 
 describe('Collection', function () {
 
@@ -18,11 +18,11 @@ describe('Collection', function () {
     expect(collection).to.respondTo('emitThen');
   });
 
-  describe('Constructor', function () {
+  it('inherits from Array', function () {
+    expect(collection).to.be.an.instanceOf(Array);
+  });
 
-    it('inherits from Array', function () {
-      expect(collection).to.be.an.instanceOf(Array);
-    });
+  describe('Constructor', function () {
 
     it('copies the provided attributes', function () {
       expect(new Collection({foo: 'bar'}))
@@ -51,13 +51,13 @@ describe('Collection', function () {
 
     var model;
     beforeEach(function () {
-      model = new ModelBase({
+      model = new Model({
         id: 1
       });
     });
 
     beforeEach(function () {
-      collection.model = ModelBase;
+      collection.model = Model;
     });
 
     it('updates existing models in the collection in place by ID', function () {
@@ -77,7 +77,7 @@ describe('Collection', function () {
           id: 1,
           name: 'Ben'
         })
-        .and.is.an.instanceOf(ModelBase);
+        .and.is.an.instanceOf(Model);
     });
 
     it('can merge many models', function () {
@@ -94,8 +94,7 @@ describe('Collection', function () {
         {id: 1, name: 'Ben'},
         {id: 2, name: 'Drucker'}
       ]);
-      expect(collection)
-        .to.have.length(2);
+      expect(collection).to.have.length(2);
     });
 
     it('merges existing models with model.toJSON (shallow:true)', function () {

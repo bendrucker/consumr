@@ -6,6 +6,25 @@ var emitThen     = require('emit-then');
 
 var internals = {};
 
+var Collection = function (attributes) {
+  Array.call(this);
+  EventEmitter.call(this);
+  this.attributes = attributes || {};
+};
+
+Collection.prototype = Object.create(Array.prototype);
+_.extend(Collection.prototype, EventEmitter.prototype);
+
+Collection.prototype.emitThen = emitThen;
+
+Collection.prototype.reset = function () {
+  while (this.length > 0) {
+    this.pop();
+  }
+  this.attributes = {};
+  return this;
+};
+
 internals.cast = function (attributes) {
   return new this(attributes);
 };
@@ -17,26 +36,6 @@ internals.find = function (model) {
 internals.update = function (model) {
   var target = internals.find.call(this, model);
   if (target) return target.set(model.toJSON({shallow: true}));
-};
-
-var Collection = function (attributes) {
-  Array.call(this);
-  EventEmitter.call(this);
-  this.attributes = attributes || {};
-};
-
-Collection.prototype = Object.create(Array.prototype);
-
-_.extend(Collection.prototype, EventEmitter.prototype);
-
-Collection.prototype.emitThen = emitThen;
-
-Collection.prototype.reset = function () {
-  while (this.length > 0) {
-    this.pop();
-  }
-  this.attributes = {};
-  return this;
 };
 
 Collection.prototype.merge = function (models) {

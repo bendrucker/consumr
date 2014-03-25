@@ -1,2 +1,8 @@
-exports.Model = require('./model');
-exports.Collection = require('./collection');
+module.exports = {
+  Model: require('./model'),
+  Collection: require('./collection'),
+  use: function (plugin, options) {
+    plugin(this, options || {});
+    return this;
+  }
+};

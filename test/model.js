@@ -17,6 +17,22 @@ describe('Model', function () {
     expect(model).to.respondTo('emitThen');
   });
 
+  describe('Model#extend', function () {
+    
+    it('subclasses the Model', function () {
+      expect(new (Model.extend())()).to.be.an.instanceOf(Model);
+    });
+
+    it('copies new prototype properties', function () {
+      expect(Model.extend({foo: 'bar'})).to.have.deep.property('prototype.foo', 'bar');
+    });
+
+    it('copies new constructor properties', function () {
+      expect(Model.extend(null, {foo: 'bar'})).to.have.property('foo', 'bar');
+    });
+
+  });
+
   describe('Constructor', function () {
 
     it('sets up attributes', function () {

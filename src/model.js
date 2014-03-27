@@ -13,6 +13,18 @@ var Model = function (attributes) {
   EventEmitter.call(this);
 };
 
+Model.extend = function (prototype, constructor) {
+  prototype = prototype || {};
+  constructor = constructor || {};
+
+  var child = function () {
+    Model.apply(this, arguments);
+  };
+  child.prototype = _.extend(Object.create(Model.prototype), prototype);
+  _.extend(child, constructor);
+  return child;
+};
+
 Model.prototype = Object.create(EventEmitter.prototype);
 
 Model.prototype.emitThen = emitThen;

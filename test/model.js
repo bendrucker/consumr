@@ -39,6 +39,15 @@ describe('Model', function () {
       expect(new Model({foo: 'bar'})).to.have.property('foo', 'bar');
     });
 
+    it('calls the `initialize` function if defined', function () {
+      Model.prototype.initialize = sinon.spy();
+      var arg = {};
+      var model = new Model(arg);
+      expect(model.initialize)
+        .to.have.been.calledWith(arg)
+        .and.calledOn(model);
+    });
+
   });
 
   describe('#isNew', function () {

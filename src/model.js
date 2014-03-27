@@ -11,6 +11,7 @@ internals.private = ['domain', '_events', '_maxListeners'];
 var Model = function (attributes) {
   this.set(attributes);
   EventEmitter.call(this);
+  if (typeof this.initialize === 'function') this.initialize.apply(this, arguments);
 };
 
 Model.extend = function (prototype, constructor) {

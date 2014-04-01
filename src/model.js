@@ -4,6 +4,8 @@ var EventEmitter = require('events').EventEmitter;
 var _            = require('lodash');
 var emitThen     = require('emit-then');
 
+var relation     = require('./relation');
+
 var internals = {};
 
 internals.private = ['domain', '_events', '_maxListeners'];
@@ -25,6 +27,10 @@ Model.extend = function (prototype, constructor) {
   _.extend(child, constructor);
   return child;
 };
+
+Model.belongsTo = relation.belongsTo;
+Model.hasOne = relation.hasOne;
+Model.hasMany = relation.hasMany;
 
 Model.prototype = Object.create(EventEmitter.prototype);
 

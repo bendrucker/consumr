@@ -33,6 +33,30 @@ describe('Model', function () {
 
   });
 
+  describe('Relations', function () {
+
+    var Source, Target;
+    beforeEach(function () {
+      Source = Model.extend();
+      Target = Model.extend({
+        name: 'target'
+      });
+    });
+
+    ['belongsTo', 'hasOne', 'hasMany']
+      .forEach(function (type) {
+        it('can register a ' + type + ' relation', function () {
+          expect(Model[type](Target))
+            .to.have.a.deep.property('prototype.relations.target')
+            .that.deep.equals({
+              type: type,
+              model: Target
+            });
+        });
+      });
+
+  });  
+
   describe('Constructor', function () {
 
     it('sets up attributes', function () {

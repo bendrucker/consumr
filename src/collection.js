@@ -35,18 +35,17 @@ internals.find = function (model) {
 
 internals.update = function (model) {
   var target = internals.find.call(this, model);
-  if (target) return target.set(model.toJSON({shallow: true}));
+  if (target) return target.set(model);
 };
 
 Collection.prototype.merge = function (models) {
   if (!Array.isArray(models)) models = [models];
   models
-    .map(internals.cast, this.model)
     .filter(function (model) {
       return !internals.update.call(this, model);
     }, this)
     .forEach(function (model) {
-      this.push(model);
+      this.push(internals.cast.call(this.model, model));
     }, this);
 
   return this;

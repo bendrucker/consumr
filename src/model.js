@@ -41,7 +41,7 @@ Model.prototype.isNew = function () {
 };
 
 Model.prototype.set = function (attributes) {
-  _.extend(this, attributes);
+  _.extend(this, relations.update.call(this, attributes));
   return this;
 };
 

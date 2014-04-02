@@ -3,6 +3,7 @@
 var consumr    = require('../');
 var Model      = consumr.Model;
 var Collection = consumr.Collection;
+var relations  = require('../src/relations');
 
 describe('Collection', function () {
 
@@ -50,11 +51,20 @@ describe('Collection', function () {
 
   describe('#merge', function () {
 
+    beforeEach(function () {
+      sinon.stub(relations, 'update').returnsArg(0);
+    });
+
+    afterEach(function () {
+      relations.update.restore();
+    });
+
     var model;
     beforeEach(function () {
       model = new Model({
         id: 1
       });
+      sinon.spy(model, 'set');
     });
 
     beforeEach(function () {
@@ -64,9 +74,7 @@ describe('Collection', function () {
     it('updates existing models in the collection in place by ID', function () {
       collection.push(model);
       collection.merge({id: 1, name: 'Ben'});
-      expect(collection)
-        .to.have.length(1)
-        .and.have.deep.property('[0].name', 'Ben');
+      expect(model.set).to.have.been.calledWith(sinon.match.has('name', 'Ben'));
     });
 
     it('adds new models to the collection', function () {
@@ -98,11 +106,10 @@ describe('Collection', function () {
       expect(collection).to.have.length(2);
     });
 
-    it('merges existing models with model.toJSON (shallow:true)', function () {
+    it('merges existing models with the new data', function () {
       collection.push(model);
-      sinon.stub(model, 'toJSON');
       collection.merge(model);
-      expect(model.toJSON).to.have.been.calledWithMatch({shallow: true});
+      expect(model.set).to.have.been.calledWith(model);
     });
 
   });

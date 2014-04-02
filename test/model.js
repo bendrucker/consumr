@@ -1,12 +1,18 @@
 'use strict';
 
-var Model = require('../').Model;
+var Model     = require('../').Model;
+var relations = require('../src/relations');
 
 describe('Model', function () {
 
   var model;
   beforeEach(function () {
+    sinon.stub(relations, 'update').returns({});
     model = new Model();
+  });
+
+  afterEach(function () {
+    relations.update.restore();
   });
 
   it('is an EventEmitter', function () {
@@ -35,32 +41,26 @@ describe('Model', function () {
 
   describe('Relations', function () {
 
-    var Source, Target;
-    beforeEach(function () {
-      Source = Model.extend();
-      Target = Model.extend({
-        name: 'target'
-      });
+    it('can create a belongsTo relation', function () {
+      expect(Model).to.itself.respondTo('belongsTo');
     });
 
-    ['belongsTo', 'hasOne', 'hasMany']
-      .forEach(function (type) {
-        it('can register a ' + type + ' relation', function () {
-          expect(Model[type](Target))
-            .to.have.a.deep.property('prototype.relations.target')
-            .that.deep.equals({
-              type: type,
-              model: Target
-            });
-        });
-      });
+    it('can create a hasOne relation', function () {
+      expect(Model).to.itself.respondTo('hasOne');
+    });
+
+    it('can create a hasMany relation', function () {
+      expect(Model).to.itself.respondTo('hasMany');
+    });
 
   });
 
   describe('Constructor', function () {
 
     it('sets up attributes', function () {
-      expect(new Model({foo: 'bar'})).to.have.property('foo', 'bar');
+      sinon.spy(Model.prototype, 'set');
+      expect(new Model({foo: 'bar'}).set).to.have.been.calledWithMatch({foo: 'bar'});
+      Model.prototype.set.restore();
     });
 
     it('calls the `initialize` function if defined', function () {
@@ -95,7 +95,10 @@ describe('Model', function () {
 
   describe('#set', function () {
 
-    it('copies an object to the model', function () {
+    it('copies the attributes and excludes related objects', function () {
+      relations.update.returns({
+        foo: 'bar'
+      });
       expect(model.set({
         foo: 'bar'
       }))

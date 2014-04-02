@@ -48,7 +48,7 @@ exports.update = function (attributes) {
     var relatedObj = attributes[name];
 
     if (internals.isDefined(id)) {
-      if (related && related.id === id) {
+      if (related) {
         related.set({id: id});
       } else {
         related = new relation.model({id: id});

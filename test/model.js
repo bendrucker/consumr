@@ -45,10 +45,6 @@ describe('Model', function () {
       expect(Model).to.itself.respondTo('belongsTo');
     });
 
-    it('can create a hasOne relation', function () {
-      expect(Model).to.itself.respondTo('hasOne');
-    });
-
     it('can create a hasMany relation', function () {
       expect(Model).to.itself.respondTo('hasMany');
     });

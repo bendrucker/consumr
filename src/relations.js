@@ -10,10 +10,12 @@ internals.key = function (Model) {
 
 internals.relation = function (type, Target) {
   this.prototype.relations = this.prototype.relations || {};
+  var single = internals.isSingle(type);
   this.prototype.relations[Target.prototype.name] = {
     type: type,
     model: Target,
-    key: internals.isSingle(type) ? internals.key(Target) : null
+    key: single ? internals.key(Target) : null,
+    single: single
   };
   return this;
 };
@@ -24,10 +26,6 @@ internals.isSingle = function (type) {
 
 exports.belongsTo = function (Target) {
   return internals.relation.call(this, 'belongsTo', Target);
-};
-
-exports.hasOne = function (Target) {
-  return internals.relation.call(this, 'hasOne', Target);
 };
 
 exports.hasMany = function (Target) {

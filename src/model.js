@@ -29,7 +29,6 @@ Model.extend = function (prototype, constructor) {
 };
 
 Model.belongsTo = relations.belongsTo;
-Model.hasOne = relations.hasOne;
 Model.hasMany = relations.hasMany;
 
 Model.prototype = Object.create(EventEmitter.prototype);

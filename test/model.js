@@ -126,5 +126,13 @@ describe('Model', function () {
     });
 
   });
+
+  describe('#toJSON', function () {
+
+    it('returns a an object without the private properties', function () {
+      expect(model.toJSON()).to.not.have.a.property('_events');
+    });
+
+  });
   
 });

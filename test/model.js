@@ -55,7 +55,7 @@ describe('Model', function () {
         });
       });
 
-  });  
+  });
 
   describe('Constructor', function () {
 

@@ -1,3 +1,5 @@
+'use strict';
+
 var internals = {};
 
 internals.relation = function (type, Target) {

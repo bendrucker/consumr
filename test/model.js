@@ -1,18 +1,21 @@
 'use strict';
 
-var Model     = require('../').Model;
+var ModelBase = require('../').Model;
 var relations = require('../src/relations');
 
 describe('Model', function () {
 
-  var model;
+  var Model, model;
   beforeEach(function () {
-    sinon.stub(relations, 'update').returns({});
+    sinon.stub(relations, 'update');
+    sinon.stub(relations, 'data');
+    Model = ModelBase.extend();
     model = new Model();
   });
 
   afterEach(function () {
     relations.update.restore();
+    relations.data.restore();
   });
 
   it('is an EventEmitter', function () {
@@ -26,11 +29,15 @@ describe('Model', function () {
   describe('Model#extend', function () {
     
     it('subclasses the Model', function () {
-      expect(new (Model.extend())()).to.be.an.instanceOf(Model);
+      expect(new (Model.extend())()).to.be.an.instanceOf(ModelBase);
     });
 
     it('copies new prototype properties', function () {
       expect(Model.extend({foo: 'bar'})).to.have.deep.property('prototype.foo', 'bar');
+    });
+
+    it('copies the parent constructor', function () {
+      expect(Model.extend()).to.itself.respondTo('extend');
     });
 
     it('copies new constructor properties', function () {
@@ -51,21 +58,36 @@ describe('Model', function () {
 
   });
 
+  var data;
+  beforeEach(function () {
+    data = {foo: 'bar'};
+  });
+
   describe('Constructor', function () {
 
     it('sets up attributes', function () {
       sinon.spy(Model.prototype, 'set');
-      expect(new Model({foo: 'bar'}).set).to.have.been.calledWithMatch({foo: 'bar'});
+      expect(new Model(data).set).to.have.been.calledWith(data);
       Model.prototype.set.restore();
     });
 
     it('calls the `initialize` function if defined', function () {
       Model.prototype.initialize = sinon.spy();
-      var arg = {};
-      var model = new Model(arg);
+      model = new Model(data);
       expect(model.initialize)
-        .to.have.been.calledWith(arg)
+        .to.have.been.calledWith(data)
         .and.calledOn(model);
+    });
+
+    it('proxies the id with a getter/setter if idAttribute is set', function () {
+      var SubModel = Model.extend({
+        idAttribute: 'foo_id'
+      });
+      model = new SubModel();
+      model.id = 0;
+      expect(model.foo_id).to.equal(0);
+      model.foo_id = 1;
+      expect(model.id).to.equal(1);
     });
 
   });
@@ -91,14 +113,9 @@ describe('Model', function () {
 
   describe('#set', function () {
 
-    it('copies the attributes and excludes related objects', function () {
-      relations.update.returns({
-        foo: 'bar'
-      });
-      expect(model.set({
-        foo: 'bar'
-      }))
-      .to.have.property('foo', 'bar');
+    it('copies the non-related data', function () {
+      relations.data.withArgs(model, data).returns(data);
+      expect(model.set(data)).to.have.property('foo', 'bar');
     });
 
   });

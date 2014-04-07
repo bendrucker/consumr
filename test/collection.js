@@ -26,9 +26,15 @@ describe('Collection', function () {
 
   describe('Constructor', function () {
 
+    it('references the Model constructor', function () {
+      expect(new Collection(Model).model).to.equal(Model);
+      expect(new Collection().propertyIsEnumerable('model')).to.be.false;
+    });
+
     it('copies the provided attributes', function () {
-      expect(new Collection({foo: 'bar'}))
-        .to.have.deep.property('attributes.foo', 'bar');
+      var attrs = {foo: 'bar'};
+      expect(new Collection(null, attrs).attributes).to.deep.equal(attrs);
+      expect(new Collection().propertyIsEnumerable('attributes')).to.be.false;
     });
 
   });
@@ -43,8 +49,8 @@ describe('Collection', function () {
 
     it('clears the attributes', function () {
       collection.attributes = {foo: 'bar'};
-      collection.reset();
-      expect(collection.attributes).to.not.have.property('foo');
+      collection.reset(); 
+      expect(collection.attributes).to.be.empty;
     });
 
   });
@@ -59,12 +65,13 @@ describe('Collection', function () {
       relations.update.restore();
     });
 
-    var model;
+    var model, data;
     beforeEach(function () {
       model = new Model({
         id: 1
       });
-      sinon.spy(model, 'set');
+      data = {id: 1, name: 'Ben'};
+      sinon.stub(model, 'set');
     });
 
     beforeEach(function () {
@@ -73,19 +80,21 @@ describe('Collection', function () {
 
     it('updates existing models in the collection in place by ID', function () {
       collection.push(model);
-      collection.merge({id: 1, name: 'Ben'});
-      expect(model.set).to.have.been.calledWith(sinon.match.has('name', 'Ben'));
+      model.matches = sinon.stub().withArgs(data).returns(true);
+      collection.merge(data);
+      expect(model.matches).to.have.been.calledWith(data);
+      expect(model.set).to.have.been.calledWith(data);
     });
 
     it('adds new models to the collection', function () {
-      collection.merge({id: 1, name: 'Ben'});
+      collection.push(model);
+      model.matches = sinon.stub().withArgs(data).returns(false);
+      collection.merge(data);
+      expect(model.set).to.not.have.been.called;
       expect(collection)
-        .to.have.length(1)
-        .and.have.property('0')
-        .and.contain({
-          id: 1,
-          name: 'Ben'
-        })
+        .to.have.length(2)
+        .and.have.property(1)
+        .and.contain(data)
         .and.is.an.instanceOf(Model);
     });
 
@@ -106,10 +115,12 @@ describe('Collection', function () {
       expect(collection).to.have.length(2);
     });
 
-    it('merges existing models with the new data', function () {
-      collection.push(model);
-      collection.merge(model);
-      expect(model.set).to.have.been.calledWith(model);
+  });
+
+  describe('#toJSON', function () {
+
+    it('excludes private properties', function () {
+      expect(collection.toJSON()._events).to.not.exist;
     });
 
   });

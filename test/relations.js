@@ -18,8 +18,7 @@ describe('Relations', function () {
       .that.deep.equals({
         type: 'belongsTo',
         model: Target,
-        key: 'target_id',
-        single: true
+        key: 'target_id'
       });
   });
 
@@ -29,23 +28,18 @@ describe('Relations', function () {
       .that.deep.equals({
         type: 'hasMany',
         model: Target,
-        key: null,
-        single: false
+        key: null
       });
   });
 
   describe('#update', function () {
 
-    it('is a noop with no relations', function () {
-      expect(relations.update.call({relations: {}}, {foo: 'bar'}))
-        .to.deep.equal({foo: 'bar'});
-    });
-
-    beforeEach(function () {
-      Target.prototype.set = sinon.spy();
-    });
-
     var model;
+
+    it('is a noop with no relations', function () {
+      model = {relations: {}};
+      expect(relations.update(model, {})).to.be.empty;
+    });
 
     describe('With a related model', function () {
 
@@ -54,29 +48,35 @@ describe('Relations', function () {
         model = new Model();
       });
 
-      it('is a noop if the related key is not present', function () {
-        relations.update.call(model, {});
+      beforeEach(function () {
+        Target.prototype.set = sinon.spy();
+      });
+
+      it('is a noop if no relation key or data is present', function () {
+        relations.update(model, {});
         expect(model).to.not.have.property('target');
       });
 
       it('updates the related model if already present', function () {
-        model.target = new Target();
-        relations.update.call(model, {
+        model.target = {
+          set: sinon.spy()
+        };
+        relations.update(model, {
           target_id: 0
         });
         expect(model.target.set).to.have.been.calledWithMatch({id: 0});
       });
 
       it('creates a related model if missing', function () {
-        relations.update.call(model, {
+        relations.update(model, {
           target_id: 0
         });
-        expect(model.target).to.equal(Target.firstCall.returnValue);
-        expect(Target).to.have.been.calledWithMatch({id: 0});
+        expect(model.target).to.be.an.instanceOf(Target);
+        expect(model.target.set).to.have.been.calledWithMatch({id: 0});
       });
 
       it('merges in data from a related object', function () {
-        relations.update.call(model, {
+        relations.update(model, {
           target_id: 0,
           target: {
             foo: 'bar'
@@ -106,13 +106,13 @@ describe('Relations', function () {
 
       it('merges into the related collection if present', function () {
         model.targets = new Collection();
-        relations.update.call(model, attrs);
+        relations.update(model, attrs);
         expect(model.targets.merge).to.have.been.calledWith(attrs.targets);
       });
 
       it('creates a related collection if missing', function () {
         sinon.spy(CollectionBase.prototype, 'merge');
-        relations.update.call(model, attrs);
+        relations.update(model, attrs);
         expect(model.targets)
           .to.be.an.instanceOf(CollectionBase)
           .with.property('model', Target);
@@ -120,6 +120,15 @@ describe('Relations', function () {
         CollectionBase.prototype.merge.restore();
       });
 
+    });
+
+  });
+
+  describe('#data', function () {
+
+    it('omits related objects', function () {
+      expect(relations.data({relations: {foo: {}}}, {foo: 'bar'}))
+        .to.not.have.property('foo');
     });
 
   });

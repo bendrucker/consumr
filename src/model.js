@@ -10,10 +10,24 @@ var internals = {};
 
 internals.private = ['domain', '_events', '_maxListeners'];
 
+internals.normalizeId = function (model) {
+  if (model.idAttribute) {
+    Object.defineProperty(model, 'id', {
+      get: function () {
+        return model[model.idAttribute];
+      },
+      set: function (id) {
+        model[model.idAttribute] = id;
+      }
+    });
+  }
+};
+
 var Model = function (attributes) {
-  this.set(attributes);
   EventEmitter.call(this);
-  if (typeof this.initialize === 'function') this.initialize.apply(this, arguments);
+  if (this.initialize) this.initialize.apply(this, arguments);
+  this.set(attributes);
+  internals.normalizeId(this);
 };
 
 Model.extend = function (prototype, constructor) {
@@ -24,6 +38,7 @@ Model.extend = function (prototype, constructor) {
     Model.apply(this, arguments);
   };
   child.prototype = _.extend(Object.create(Model.prototype), prototype);
+  _.extend(child, this);
   _.extend(child, constructor);
   return child;
 };
@@ -40,7 +55,8 @@ Model.prototype.isNew = function () {
 };
 
 Model.prototype.set = function (attributes) {
-  _.extend(this, relations.update.call(this, attributes));
+  relations.update(this, attributes);
+  _.extend(this, relations.data(this, attributes));
   return this;
 };
 

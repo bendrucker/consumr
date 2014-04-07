@@ -111,11 +111,13 @@ describe('Relations', function () {
       });
 
       it('creates a related collection if missing', function () {
+        sinon.spy(CollectionBase.prototype, 'merge');
         relations.update.call(model, attrs);
-        console.log(model);
         expect(model.targets)
           .to.be.an.instanceOf(CollectionBase)
           .with.property('model', Target);
+        expect(model.targets.merge).to.have.been.calledWith(attrs.targets);
+        CollectionBase.prototype.merge.restore();
       });
 
     });

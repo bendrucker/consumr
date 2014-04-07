@@ -86,6 +86,8 @@ describe('Model', function () {
       model = new SubModel();
       model.id = 0;
       expect(model.foo_id).to.equal(0);
+      model.foo_id = 1;
+      expect(model.id).to.equal(1);
     });
 
   });

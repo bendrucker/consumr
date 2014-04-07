@@ -60,6 +60,12 @@ Model.prototype.set = function (attributes) {
   return this;
 };
 
+Model.prototype.matches = function (data) {
+  if (typeof this.id === 'undefined') return;
+  if (this.id === data.id) return true;
+  if (this.idAttribute && this.id === data[this.idAttribute]) return true;
+};
+
 Model.prototype.reset = function () {
   _(this)
     .keys()

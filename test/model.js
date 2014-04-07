@@ -120,6 +120,32 @@ describe('Model', function () {
 
   });
 
+  describe('#matches', function () {
+
+    beforeEach(function () {
+      model.id = 0;
+    });
+
+    it('is always falsy if there is no id', function () {
+      model.id = undefined;
+      expect(model.matches({id: 0})).to.not.be.ok;
+    });
+
+    it('matches the ids match', function () {
+      expect(model.matches({id: 0})).to.be.true;
+    });
+
+    it('matches when the model id matches the data idAttribute value', function () {
+      model.idAttribute = 'foo_id';
+      expect(model.matches({foo_id: 0})).to.be.true;
+    });
+
+    it('does not match if IDs are mismatched', function () {
+      expect(model.matches({id: 1})).to.not.be.ok;
+    });
+
+  });
+
   describe('#reset', function () {
 
     it('removes properties from the model', function () {

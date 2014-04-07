@@ -1,6 +1,8 @@
 'use strict';
 
-var _ = require('lodash');
+var _          = require('lodash');
+var inflection = require('inflection');
+var Collection = require('./collection');
 
 var internals = {};
 
@@ -8,10 +10,14 @@ internals.key = function (Model) {
   return Model.prototype.name + '_id';
 };
 
+internals.name = function (Target, single) {
+  return single ? Target.prototype.name : inflection.pluralize(Target.prototype.name);
+};
+
 internals.relation = function (type, Target) {
   this.prototype.relations = this.prototype.relations || {};
   var single = internals.isSingle(type);
-  this.prototype.relations[Target.prototype.name] = {
+  this.prototype.relations[internals.name(Target, single)] = {
     type: type,
     model: Target,
     key: single ? internals.key(Target) : null,
@@ -47,7 +53,7 @@ exports.update = function (attributes) {
     var id = attributes[relation.key];
     var relatedObj = attributes[name];
 
-    if (internals.isDefined(id)) {
+    if (relation.single && internals.isDefined(id)) {
       if (related) {
         related.set({id: id});
       } else {
@@ -57,6 +63,17 @@ exports.update = function (attributes) {
 
       if (relatedObj) {
         related.set(relatedObj);
+      }
+    }
+
+    if (!relation.single && relatedObj) {
+      if (related) {
+        related.merge(relatedObj);
+      } else if (relatedObj) {
+        var collection = new Collection();
+        collection.model = relation.model;
+        collection.merge(relatedObj);
+        this[name] = collection;
       }
     }
 

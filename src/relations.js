@@ -81,3 +81,7 @@ exports.update = function (attributes) {
 
   return _.omit(attributes, Object.keys(this.relations));
 };
+
+exports.data = function (attributes) {
+
+};

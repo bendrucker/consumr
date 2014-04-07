@@ -6,6 +6,8 @@ var emitThen     = require('emit-then');
 
 var internals = {};
 
+internals.private = ['domain', '_events', '_maxListeners'];
+
 var Collection = function (Model, attributes) {
   Array.call(this);
   EventEmitter.call(this);
@@ -69,6 +71,10 @@ Collection.prototype.merge = function (models) {
     }, this);
 
   return this;
+};
+
+Collection.prototype.toJSON = function () {
+  return _.omit(this, internals.private);
 };
 
 module.exports = Collection;

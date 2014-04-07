@@ -117,4 +117,12 @@ describe('Collection', function () {
 
   });
 
+  describe('#toJSON', function () {
+
+    it('excludes private properties', function () {
+      expect(collection.toJSON()._events).to.not.exist;
+    });
+
+  });
+
 });

@@ -49,11 +49,6 @@ internals.find = function (collection, modelData) {
   });
 };
 
-internals.update = function (model) {
-  var target = internals.find.call(this, model);
-  if (target) return target.set(model);
-};
-
 Collection.prototype.merge = function (models) {
   if (!Array.isArray(models)) models = [models];
   models

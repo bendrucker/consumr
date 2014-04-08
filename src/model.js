@@ -43,10 +43,10 @@ Model.extend = function (prototype, constructor) {
   return child;
 };
 
-Model.belongsTo = relations.belongsTo;
-Model.hasMany = relations.hasMany;
-
 Model.prototype = Object.create(EventEmitter.prototype);
+
+Model.prototype.hasOne = relations.hasOne;
+Model.prototype.hasMany = relations.hasMany;
 
 Model.prototype.emitThen = emitThen;
 

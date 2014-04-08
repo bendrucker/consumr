@@ -1,21 +1,15 @@
 'use strict';
 
-var ModelBase = require('../').Model;
-var relations = require('../src/relations');
+var ModelBase      = require('../').Model;
+var CollectionBase = require('../').Collection;
+// var Relation  = require('../src/relation');
 
 describe('Model', function () {
 
   var Model, model;
   beforeEach(function () {
-    sinon.stub(relations, 'update');
-    sinon.stub(relations, 'data');
     Model = ModelBase.extend();
     model = new Model();
-  });
-
-  afterEach(function () {
-    relations.update.restore();
-    relations.data.restore();
   });
 
   it('is an EventEmitter', function () {
@@ -42,18 +36,6 @@ describe('Model', function () {
 
     it('copies new constructor properties', function () {
       expect(Model.extend(null, {foo: 'bar'})).to.have.property('foo', 'bar');
-    });
-
-  });
-
-  describe('Relations', function () {
-
-    it('can create a belongsTo relation', function () {
-      expect(Model).to.itself.respondTo('belongsTo');
-    });
-
-    it('can create a hasMany relation', function () {
-      expect(Model).to.itself.respondTo('hasMany');
     });
 
   });
@@ -114,7 +96,7 @@ describe('Model', function () {
   describe('#set', function () {
 
     it('copies the non-related data', function () {
-      relations.data.withArgs(model, data).returns(data);
+      // relations.data.withArgs(model, data).returns(data);
       expect(model.set(data)).to.have.property('foo', 'bar');
     });
 
@@ -170,6 +152,67 @@ describe('Model', function () {
 
     it('returns a an object without the private properties', function () {
       expect(model.toJSON()).to.not.have.a.property('_events');
+    });
+
+  });
+
+  describe('Relations', function () {
+
+    var Target;
+    beforeEach(function () {
+      Target = ModelBase.extend({
+        name: 'target'
+      });
+    });
+
+    describe('#belongsTo', function () {
+
+      it('returns the related model', function () {
+        model.target_id = 0;
+        model.target = function () {
+          return this.belongsTo(Target);
+        };
+        expect(model.target())
+          .to.be.an.instanceOf(Target)
+          .and.have.property('id', 0);
+      });
+
+      it('can use a custom key', function () {
+        model.tid = 0;
+        model.target = function () {
+          return this.belongsTo(Target, 'tid');
+        };
+        expect(model.target())
+          .to.be.an.instanceOf(Target)
+          .and.have.property('id', 0);
+      });
+
+    });
+
+    describe('#hasMany', function () {
+
+      beforeEach(function () {
+        model.name = 'foo';
+        model.id = 0;
+      });
+
+      it('returns the related collection', function () {
+        model.targets = function () {
+          return this.hasMany(Target);
+        };
+        var targets = model.targets()
+        expect(targets).to.be.an.instanceOf(CollectionBase);
+        expect(targets.attributes).to.have.property('foo_id', 0);
+        expect(targets.model).to.equal(Target);
+      });
+
+      it('can use a custom foreignKey', function () {
+        model.targets = function () {
+          return this.hasMany(Target, 'bar_id');
+        };
+        expect(model.targets().attributes).to.have.property('bar_id', 0);
+      });
+
     });
 
   });

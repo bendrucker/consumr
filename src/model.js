@@ -4,7 +4,7 @@ var EventEmitter = require('events').EventEmitter;
 var _            = require('lodash');
 var emitThen     = require('emit-then');
 
-var relations    = require('./relations');
+var Relation    = require('./relation');
 
 var internals = {};
 
@@ -23,10 +23,19 @@ internals.normalizeId = function (model) {
   }
 };
 
+internals.initializeRelations = function (model) {
+  Object.defineProperty(model, 'relations', {
+    value: {},
+    writable: true,
+    enumerable: false
+  });
+};
+
 var Model = function (attributes) {
   EventEmitter.call(this);
   if (this.initialize) this.initialize.apply(this, arguments);
   this.set(attributes);
+  internals.initializeRelations(this);
   internals.normalizeId(this);
 };
 
@@ -45,9 +54,6 @@ Model.extend = function (prototype, constructor) {
 
 Model.prototype = Object.create(EventEmitter.prototype);
 
-Model.prototype.hasOne = relations.hasOne;
-Model.prototype.hasMany = relations.hasMany;
-
 Model.prototype.emitThen = emitThen;
 
 Model.prototype.isNew = function () {
@@ -55,8 +61,8 @@ Model.prototype.isNew = function () {
 };
 
 Model.prototype.set = function (attributes) {
-  relations.update(this, attributes);
-  _.extend(this, relations.data(this, attributes));
+  // relations.update(this, attributes);
+  _.extend(this, attributes);
   return this;
 };
 
@@ -79,6 +85,18 @@ Model.prototype.reset = function () {
 
 Model.prototype.toJSON = function () {
   return _.omit(this, internals.private);
+};
+
+Model.prototype.belongsTo = function (Target, key) {
+  return new Relation('belongsTo', Target, {key: key}).initialize(this);
+};
+
+Model.prototype.hasMany = function (Target, fKey) {
+  return new Relation('hasMany', Target, {foreignKey: fKey}).initialize(this);
+};
+
+Model.prototype.related = function (relation) {
+  return this.relations[relation] || (this[relation] ? this.relations[relation] = this[relation]() : void 0);
 };
 
 module.exports = Model;

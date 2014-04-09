@@ -6,9 +6,13 @@ var emitThen     = require('emit-then');
 
 var internals = {};
 
-var Collection = function (attributes) {
+internals.private = ['domain', '_events', '_maxListeners', 'model', 'attributes'];
+
+var Collection = function (Model, attributes) {
   Array.call(this);
   EventEmitter.call(this);
+
+  this.model = Model;
   this.attributes = attributes || {};
 };
 
@@ -25,31 +29,38 @@ Collection.prototype.reset = function () {
   return this;
 };
 
-internals.cast = function (attributes) {
-  return new this(attributes);
+internals.cast = function (Model, attributes, options) {
+  return new Model(attributes, options);
 };
 
-internals.find = function (model) {
-  return _.find(this, {id: model.id});
+internals.find = function (collection, modelData) {
+  return _.find(collection, function (model) {
+    return model.matches(modelData);
+  });
 };
 
-internals.update = function (model) {
-  var target = internals.find.call(this, model);
-  if (target) return target.set(model.toJSON({shallow: true}));
-};
-
-Collection.prototype.merge = function (models) {
+Collection.prototype.merge = function (models, options) {
+  if (!models) return this;
   if (!Array.isArray(models)) models = [models];
   models
-    .map(internals.cast, this.model)
     .filter(function (model) {
-      return !internals.update.call(this, model);
+      var existing = internals.find(this, model);
+      if (existing) {
+        existing.set(model, options);
+        return;
+      } else {
+        return true;
+      }
     }, this)
     .forEach(function (model) {
-      this.push(model);
+      this.push(internals.cast(this.model, model, options));
     }, this);
 
   return this;
+};
+
+Collection.prototype.toJSON = function () {
+  return _.omit(this, internals.private);
 };
 
 module.exports = Collection;

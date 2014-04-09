@@ -22,7 +22,8 @@
   "homepage": "https://github.com/valet-io/consumr",
   "dependencies": {
     "lodash": "~2.4.1",
-    "emit-then": "0.0.3"
+    "emit-then": "0.0.3",
+    "inflection": "~1.3.5"
   },
   "devDependencies": {
     "jshint-stylish": "~0.1.5",

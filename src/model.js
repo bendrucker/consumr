@@ -69,7 +69,11 @@ internals.relations = function (model, attributes, options) {
   options.withRelated
     .forEach(function (name) {
       if (!model[name]) model[name] = model.related(name);
-      model[name].set(attributes[name]);
+      if (model[name].set) {
+        model[name].set(attributes[name]);
+      } else {
+        model[name].merge(attributes[name]);
+      }
     });
 };
 

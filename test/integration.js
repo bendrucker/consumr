@@ -90,4 +90,15 @@ describe('Integration', function () {
     });
   });
 
+  it('can create a one to many relation without data', function () {
+    var post = new Post({id: 0}, {withRelated: ['comments']});
+    expect(post)
+      .to.have.property('comments')
+      .that.is.an.instanceOf(Consumr.Collection);
+    console.log(post.comments.attributes);
+    expect(post.comments.attributes).to.contain({
+      post_id: 0
+    });
+  });
+
 });

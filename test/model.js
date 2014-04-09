@@ -101,13 +101,12 @@ describe('Model', function () {
 
   describe('#set', function () {
 
-    var relationFactory, relatedModel; 
+    var relatedModel;
     beforeEach(function () {
       relatedModel = {
         set: sinon.spy()
       };
-      relationFactory = sinon.stub().returns(relatedModel);
-      sinon.stub(model, 'related').returns(relationFactory);
+      sinon.stub(model, 'related').returns(relatedModel);
     });
 
     it('copies the input data', function () {
@@ -117,8 +116,13 @@ describe('Model', function () {
     it('casts relational data', function () {
       model.set(data, {withRelated: ['foo']});
       expect(model.related).to.have.been.calledWith('foo');
-      expect(model.foo).to.equal(relationFactory.firstCall.returnValue);
+      expect(model.foo).to.equal(model.related.firstCall.returnValue);
       expect(relatedModel.set).to.have.been.calledWith(data.foo);
+    });
+
+    it('can use a single relation name for withRelated', function () {
+      model.set(data, {withRelated: 'foo'});
+      expect(model.related).to.have.been.calledWith('foo');
     });
 
     it('updates existing relations', function () {

@@ -52,7 +52,11 @@ Model.prototype.isNew = function () {
 };
 
 internals.options = function (options) {
-  return _.defaults(options || {}, {
+  options = options || {};
+  if (options.withRelated && !Array.isArray(options.withRelated)) {
+    options.withRelated = [options.withRelated];
+  }
+  return _.defaults(options, {
     withRelated: []
   });
 };
@@ -62,9 +66,9 @@ internals.data = function (attributes, options) {
 };
 
 internals.relations = function (model, attributes, options) {
-  _.intersection(Object.keys(attributes), options.withRelated)
+  options.withRelated
     .forEach(function (name) {
-      if (!model[name]) model[name] = model.related(name)();
+      if (!model[name]) model[name] = model.related(name);
       model[name].set(attributes[name]);
     });
 };

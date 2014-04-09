@@ -39,8 +39,8 @@ Collection.prototype.reset = function () {
   return this;
 };
 
-internals.cast = function (Model, attributes) {
-  return new Model(attributes);
+internals.cast = function (Model, attributes, options) {
+  return new Model(attributes, options);
 };
 
 internals.find = function (collection, modelData) {
@@ -49,20 +49,20 @@ internals.find = function (collection, modelData) {
   });
 };
 
-Collection.prototype.merge = function (models) {
+Collection.prototype.merge = function (models, options) {
   if (!Array.isArray(models)) models = [models];
   models
     .filter(function (model) {
       var existing = internals.find(this, model);
       if (existing) {
-        existing.set(model);
+        existing.set(model, options);
         return;
       } else {
         return true;
       }
     }, this)
     .forEach(function (model) {
-      this.push(internals.cast(this.model, model));
+      this.push(internals.cast(this.model, model, options));
     }, this);
 
   return this;

@@ -56,12 +56,13 @@ describe('Collection', function () {
 
   describe('#merge', function () {
 
-    var model, data;
+    var model, data, options;
     beforeEach(function () {
       model = new Model({
         id: 1
       });
       data = {id: 1, name: 'Ben'};
+      options = {};
       sinon.stub(model, 'set');
     });
 
@@ -72,21 +73,24 @@ describe('Collection', function () {
     it('updates existing models in the collection in place by ID', function () {
       collection.push(model);
       model.matches = sinon.stub().withArgs(data).returns(true);
-      collection.merge(data);
+      collection.merge(data, options);
       expect(model.matches).to.have.been.calledWith(data);
-      expect(model.set).to.have.been.calledWith(data);
+      expect(model.set).to.have.been.calledWith(data, options);
     });
 
     it('adds new models to the collection', function () {
       collection.push(model);
       model.matches = sinon.stub().withArgs(data).returns(false);
-      collection.merge(data);
+      sinon.spy(Model.prototype, 'set');
+      collection.merge(data, options);
       expect(model.set).to.not.have.been.called;
       expect(collection)
         .to.have.length(2)
         .and.have.property(1)
         .and.contain(data)
         .and.is.an.instanceOf(Model);
+      expect(collection[1].set).to.have.been.calledWith(data, options);
+      Model.prototype.set.restore();
     });
 
     it('can merge many models', function () {
@@ -96,14 +100,6 @@ describe('Collection', function () {
       ]);
       expect(collection)
         .to.have.length(2);
-    });
-
-    it('can merge many models', function () {
-      collection.merge([
-        {id: 1, name: 'Ben'},
-        {id: 2, name: 'Drucker'}
-      ]);
-      expect(collection).to.have.length(2);
     });
 
   });

@@ -23,10 +23,10 @@ internals.normalizeId = function (model) {
   }
 };
 
-var Model = function (attributes) {
+var Model = function (attributes, options) {
   EventEmitter.call(this);
   if (this.initialize) this.initialize.apply(this, arguments);
-  this.set(attributes);
+  this.set(attributes, options);
   internals.normalizeId(this);
 };
 

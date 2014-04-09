@@ -2,7 +2,6 @@
 
 var ModelBase      = require('../').Model;
 var CollectionBase = require('../').Collection;
-// var Relation  = require('../src/relation');
 
 describe('Model', function () {
 
@@ -40,17 +39,24 @@ describe('Model', function () {
 
   });
 
-  var data;
+  var data, options;
   beforeEach(function () {
     data = {foo: 'bar'};
+    options = {};
   });
 
   describe('Constructor', function () {
 
-    it('sets up attributes', function () {
-      sinon.spy(Model.prototype, 'set');
-      expect(new Model(data).set).to.have.been.calledWith(data);
+    beforeEach(function () {
+      sinon.stub(Model.prototype, 'set');
+    });
+
+    afterEach(function () {
       Model.prototype.set.restore();
+    });
+
+    it('sets up attributes', function () {
+      expect(new Model(data, options).set).to.have.been.calledWith(data, options);
     });
 
     it('calls the `initialize` function if defined', function () {

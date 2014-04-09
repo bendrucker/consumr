@@ -165,6 +165,20 @@ describe('Model', function () {
       });
     });
 
+    describe('#related', function () {
+
+      it('calls the named relation method', function () {
+        Model.prototype.relations = {
+          target: sinon.spy()
+        };
+        model.related('target');
+        expect(model.relations.target)
+          .to.have.been.calledOnce
+          .and.calledOn(model);
+      });
+      
+    });
+
     describe('#belongsTo', function () {
 
       it('returns the related model', function () {
@@ -200,7 +214,7 @@ describe('Model', function () {
         model.targets = function () {
           return this.hasMany(Target);
         };
-        var targets = model.targets()
+        var targets = model.targets();
         expect(targets).to.be.an.instanceOf(CollectionBase);
         expect(targets.attributes).to.have.property('foo_id', 0);
         expect(targets.model).to.equal(Target);

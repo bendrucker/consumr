@@ -23,19 +23,10 @@ internals.normalizeId = function (model) {
   }
 };
 
-internals.initializeRelations = function (model) {
-  Object.defineProperty(model, 'relations', {
-    value: {},
-    writable: true,
-    enumerable: false
-  });
-};
-
 var Model = function (attributes) {
   EventEmitter.call(this);
   if (this.initialize) this.initialize.apply(this, arguments);
   this.set(attributes);
-  internals.initializeRelations(this);
   internals.normalizeId(this);
 };
 
@@ -60,9 +51,18 @@ Model.prototype.isNew = function () {
   return (typeof this.id === 'undefined' || this.id === null);
 };
 
-Model.prototype.set = function (attributes) {
-  // relations.update(this, attributes);
-  _.extend(this, attributes);
+internals.setRelations = function (model, attributes, relations) {
+
+};
+
+internals.setData = function (model, attributes) {
+  _.extend(model, attributes);
+};
+
+Model.prototype.set = function (attributes, options) {
+  options = options || {};
+  internals.setRelations(this, attributes, options.withRelated);
+  internals.setData(this, attributes);
   return this;
 };
 
@@ -87,16 +87,16 @@ Model.prototype.toJSON = function () {
   return _.omit(this, internals.private);
 };
 
+Model.prototype.related = function (name) {
+  return this.relations[name].call(this);
+};
+
 Model.prototype.belongsTo = function (Target, key) {
   return new Relation('belongsTo', Target, {key: key}).initialize(this);
 };
 
 Model.prototype.hasMany = function (Target, fKey) {
   return new Relation('hasMany', Target, {foreignKey: fKey}).initialize(this);
-};
-
-Model.prototype.related = function (relation) {
-  return this.relations[relation] || (this[relation] ? this.relations[relation] = this[relation]() : void 0);
 };
 
 module.exports = Model;

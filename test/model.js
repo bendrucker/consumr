@@ -183,6 +183,14 @@ describe('Model', function () {
       expect(model.toJSON()).to.not.have.a.property('_events');
     });
 
+    it('omits relations', function () {
+      model.relations = {
+        foo: function () {}
+      };
+      model.foo = 'bar';
+      expect(model.toJSON()).to.not.have.a.property('foo');
+    });
+
   });
 
   describe('Relations', function () {

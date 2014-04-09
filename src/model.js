@@ -95,7 +95,7 @@ Model.prototype.reset = function () {
 };
 
 Model.prototype.toJSON = function () {
-  return _.omit(this, internals.private);
+  return _.omit(this, internals.private.concat(Object.keys(this.relations || {})));
 };
 
 Model.prototype.related = function (name) {

@@ -6,6 +6,14 @@ var emitThen     = require('emit-then');
 
 var internals = {};
 
+
+// This might explode but it's worth a try
+var isArray = Array.isArray;
+Array.isArray = function (array) {
+  if (array instanceof Collection) return true;
+  return isArray(array);
+};
+
 internals.private = ['domain', '_events', '_maxListeners', 'model', 'attributes'];
 
 var Collection = function (Model, attributes) {

@@ -19,8 +19,9 @@ describe('Collection', function () {
     expect(collection).to.respondTo('emitThen');
   });
 
-  it('inherits from Array', function () {
+  it('behaves like an array', function () {
     expect(collection).to.be.an.instanceOf(Array);
+    expect(Array.isArray(collection)).to.be.true;
   });
 
   describe('Constructor', function () {

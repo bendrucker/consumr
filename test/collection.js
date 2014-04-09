@@ -27,13 +27,11 @@ describe('Collection', function () {
 
     it('references the Model constructor', function () {
       expect(new Collection(Model).model).to.equal(Model);
-      expect(new Collection().propertyIsEnumerable('model')).to.be.false;
     });
 
-    it('copies the provided attributes', function () {
+    it('references the provided attributes', function () {
       var attrs = {foo: 'bar'};
-      expect(new Collection(null, attrs).attributes).to.deep.equal(attrs);
-      expect(new Collection().propertyIsEnumerable('attributes')).to.be.false;
+      expect(new Collection(null, attrs).attributes).to.equal(attrs);
     });
 
   });
@@ -111,7 +109,12 @@ describe('Collection', function () {
   describe('#toJSON', function () {
 
     it('excludes private properties', function () {
-      expect(collection.toJSON()._events).to.not.exist;
+      collection.model = {};
+      collection.attributes = {};
+      var json = collection.toJSON();
+      expect(json._events).to.not.exist;
+      expect(json.model).to.not.exist;
+      expect(json.attributes).to.not.exist;
     });
 
   });

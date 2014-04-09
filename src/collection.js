@@ -6,24 +6,14 @@ var emitThen     = require('emit-then');
 
 var internals = {};
 
-internals.private = ['domain', '_events', '_maxListeners'];
+internals.private = ['domain', '_events', '_maxListeners', 'model', 'attributes'];
 
 var Collection = function (Model, attributes) {
   Array.call(this);
   EventEmitter.call(this);
 
-  Object.defineProperties(this, {
-    model: {
-      value: Model,
-      enumerable: false,
-      writable: true
-    },
-    attributes: {
-      value: attributes || {},
-      enumerable: false,
-      writable: true
-    }
-  });
+  this.model = Model;
+  this.attributes = attributes || {};
 };
 
 Collection.prototype = Object.create(Array.prototype);

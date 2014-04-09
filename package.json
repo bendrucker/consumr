@@ -1,6 +1,6 @@
 {
   "name": "consumr",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "description": "A lightweight model layer for building object-oriented API wrappers",
   "main": "src/index.js",
   "scripts": {

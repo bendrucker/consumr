@@ -91,14 +91,29 @@ describe('Integration', function () {
   });
 
   it('can create a one to many relation without data', function () {
-    var post = new Post({id: 0}, {withRelated: ['comments']});
-    expect(post)
+    expect(new Post({id: 0}, {withRelated: ['comments']}))
       .to.have.property('comments')
-      .that.is.an.instanceOf(Consumr.Collection);
-    console.log(post.comments.attributes);
-    expect(post.comments.attributes).to.contain({
-      post_id: 0
-    });
+      .that.is.an.instanceOf(Consumr.Collection)
+      .and.have.property('attributes')
+      .and.contain({post_id: 0});
+  });
+
+  it('can create a one to many relation with data', function () {
+    expect(new Post({
+      id: 0,
+      comments: [
+        {
+          id: 1
+        }
+      ]
+    },
+    {
+      withRelated: ['comments']
+    }))
+    .to.have.property('comments')
+    .with.length(1)
+    .and.property(0)
+    .with.property('id', 1);
   });
 
 });

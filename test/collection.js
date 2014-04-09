@@ -70,6 +70,10 @@ describe('Collection', function () {
       collection.model = Model;
     });
 
+    it('is a noop if the input is falsy', function () {
+      expect(collection.merge()).to.have.length(0);
+    });
+
     it('updates existing models in the collection in place by ID', function () {
       collection.push(model);
       model.matches = sinon.stub().withArgs(data).returns(true);

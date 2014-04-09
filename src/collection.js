@@ -50,6 +50,7 @@ internals.find = function (collection, modelData) {
 };
 
 Collection.prototype.merge = function (models, options) {
+  if (!models) return this;
   if (!Array.isArray(models)) models = [models];
   models
     .filter(function (model) {

@@ -95,9 +95,32 @@ describe('Model', function () {
 
   describe('#set', function () {
 
-    it('copies the non-related data', function () {
-      // relations.data.withArgs(model, data).returns(data);
+    var relationFactory, relatedModel; 
+    beforeEach(function () {
+      relatedModel = {
+        set: sinon.spy()
+      };
+      relationFactory = sinon.stub().returns(relatedModel);
+      sinon.stub(model, 'related').returns(relationFactory);
+    });
+
+    it('copies the input data', function () {
       expect(model.set(data)).to.have.property('foo', 'bar');
+    });
+
+    it('casts relational data', function () {
+      model.set(data, {withRelated: ['foo']});
+      expect(model.related).to.have.been.calledWith('foo');
+      expect(model.foo).to.equal(relationFactory.firstCall.returnValue);
+      expect(relatedModel.set).to.have.been.calledWith(data.foo);
+    });
+
+    it('updates existing relations', function () {
+      model.foo = {
+        set: sinon.spy()
+      };
+      model.set(data, {withRelated: ['foo']});
+      expect(model.foo.set).to.have.been.calledWith(data.foo);
     });
 
   });

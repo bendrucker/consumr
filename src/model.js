@@ -51,18 +51,29 @@ Model.prototype.isNew = function () {
   return (typeof this.id === 'undefined' || this.id === null);
 };
 
-internals.setRelations = function (model, attributes, relations) {
-
+internals.options = function (options) {
+  return _.defaults(options || {}, {
+    withRelated: []
+  });
 };
 
-internals.setData = function (model, attributes) {
-  _.extend(model, attributes);
+internals.data = function (attributes, options) {
+  return _.omit(attributes, options.withRelated);
+};
+
+internals.relations = function (model, attributes, options) {
+  _.intersection(Object.keys(attributes), options.withRelated)
+    .forEach(function (name) {
+      if (!model[name]) model[name] = model.related(name)();
+      model[name].set(attributes[name]);
+    });
 };
 
 Model.prototype.set = function (attributes, options) {
-  options = options || {};
-  internals.setRelations(this, attributes, options.withRelated);
-  internals.setData(this, attributes);
+  options = internals.options(options);
+  attributes = attributes || {};
+  _.extend(this, internals.data(attributes, options));
+  internals.relations(this, attributes, options);
   return this;
 };
 

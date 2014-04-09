@@ -25,7 +25,7 @@ internals.normalizeId = function (model) {
 
 var Model = function (attributes, options) {
   EventEmitter.call(this);
-  if (this.initialize) this.initialize.apply(this, arguments);
+  if (this.initialize) this.initialize.apply(this, arguments, options);
   this.set(attributes, options);
   internals.normalizeId(this);
 };

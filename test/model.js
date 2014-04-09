@@ -61,9 +61,9 @@ describe('Model', function () {
 
     it('calls the `initialize` function if defined', function () {
       Model.prototype.initialize = sinon.spy();
-      model = new Model(data);
+      model = new Model(data, options);
       expect(model.initialize)
-        .to.have.been.calledWith(data)
+        .to.have.been.calledWith(data, options)
         .and.calledOn(model);
     });
 

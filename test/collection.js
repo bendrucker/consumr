@@ -3,7 +3,6 @@
 var consumr    = require('../');
 var Model      = consumr.Model;
 var Collection = consumr.Collection;
-var relations  = require('../src/relations');
 
 describe('Collection', function () {
 
@@ -56,14 +55,6 @@ describe('Collection', function () {
   });
 
   describe('#merge', function () {
-
-    beforeEach(function () {
-      sinon.stub(relations, 'update').returnsArg(0);
-    });
-
-    afterEach(function () {
-      relations.update.restore();
-    });
 
     var model, data;
     beforeEach(function () {

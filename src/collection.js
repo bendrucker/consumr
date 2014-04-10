@@ -31,6 +31,10 @@ Collection.prototype.toString = function () {
   return '[object Array]';
 };
 
+Collection.prototype.toArray = function () {
+  return this.slice();
+};
+
 Collection.prototype.emitThen = emitThen;
 
 Collection.prototype.reset = function () {

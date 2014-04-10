@@ -27,6 +27,10 @@ var Collection = function (Model, attributes) {
 Collection.prototype = Object.create(Array.prototype);
 _.extend(Collection.prototype, EventEmitter.prototype);
 
+Collection.prototype.toString = function () {
+  return '[object Array]';
+};
+
 Collection.prototype.emitThen = emitThen;
 
 Collection.prototype.reset = function () {

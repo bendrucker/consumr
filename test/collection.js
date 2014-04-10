@@ -22,6 +22,7 @@ describe('Collection', function () {
   it('behaves like an array', function () {
     expect(collection).to.be.an.instanceOf(Array);
     expect(Array.isArray(collection)).to.be.true;
+    expect(collection.toString()).to.equal('[object Array]');
   });
 
   describe('Constructor', function () {
@@ -47,7 +48,7 @@ describe('Collection', function () {
 
     it('clears the attributes', function () {
       collection.attributes = {foo: 'bar'};
-      collection.reset(); 
+      collection.reset();
       expect(collection.attributes).to.be.empty;
     });
 

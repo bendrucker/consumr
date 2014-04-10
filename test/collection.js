@@ -22,6 +22,7 @@ describe('Collection', function () {
   it('behaves like an array', function () {
     expect(collection).to.be.an.instanceOf(Array);
     expect(Array.isArray(collection)).to.be.true;
+    expect(collection.toString()).to.equal('[object Array]');
   });
 
   describe('Constructor', function () {
@@ -37,6 +38,19 @@ describe('Collection', function () {
 
   });
 
+  describe('#toArray', function () {
+
+    it('returns a normal array', function () {
+      collection.push('foo', 'bar');
+      var array = collection.toArray();
+      expect(array)
+        .to.be.an.instanceOf(Array)
+        .and.to.not.be.an.instanceOf(Collection);
+      expect(array).to.have.length(2);
+    });
+
+  });
+
   describe('#reset', function () {
 
     it('empties the array', function () {
@@ -47,7 +61,7 @@ describe('Collection', function () {
 
     it('clears the attributes', function () {
       collection.attributes = {foo: 'bar'};
-      collection.reset(); 
+      collection.reset();
       expect(collection.attributes).to.be.empty;
     });
 

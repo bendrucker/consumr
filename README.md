@@ -1,6 +1,8 @@
 [Deprecated] consumr
 ==========
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/bendrucker/consumr.svg)](https://greenkeeper.io/)
+
 Create portable, object-oriented interfaces for remote APIs
 
 ## Deprecated
